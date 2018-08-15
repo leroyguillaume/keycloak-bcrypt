@@ -1,7 +1,8 @@
 package com.github.leroyguillaume.keycloak.bcrypt;
 
 import org.jboss.logging.Logger;
-import org.keycloak.common.util.Base64;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import org.keycloak.credential.CredentialModel;
 import org.keycloak.credential.hash.PasswordHashProvider;
 import org.keycloak.models.PasswordPolicy;
@@ -52,8 +53,11 @@ public class BCryptPasswordHashProvider implements PasswordHashProvider {
         credential.setHashIterations(iterations);
         credential.setValue(password);
         try {
-            credential.setSalt(Base64.decode(salt));
-        } catch (IOException exception) {
+            // Encode String to base 64
+            String saltEncode = Base64.getEncoder().encodeToString(salt.getBytes());
+            byte[] saltDecode = Base64.getDecoder().decode(saltEncode);
+            credential.setSalt(saltDecode);
+        } catch (Exception exception) {
             throw new RuntimeException(exception);
         }
     }
