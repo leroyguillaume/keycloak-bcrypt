@@ -1,7 +1,8 @@
 package com.github.leroyguillaume.keycloak.bcrypt;
 
 import org.jboss.logging.Logger;
-import org.keycloak.common.util.Base64;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import org.keycloak.credential.CredentialModel;
 import org.keycloak.credential.hash.PasswordHashProvider;
 import org.keycloak.models.PasswordPolicy;
@@ -57,7 +58,7 @@ public class BCryptPasswordHashProvider implements PasswordHashProvider {
         credential.setValue(password);
 
         // Salt encoding is modified base64 so standard decode does not work
-        // No need to actually record salt separately   
+        // No need to actually record salt separately
         credential.setSalt(new byte[0]);
     }
 
@@ -73,7 +74,7 @@ public class BCryptPasswordHashProvider implements PasswordHashProvider {
 
     private int iterationsToLogRounds(int iterations) {
          // bcrypt uses 2**log2_rounds with a min of 4 and max of 30 log rounds
-        return Math.max(MIN_BCRYPT_LOG_ROUNDS, Math.min(MAX_BCRYPT_LOG_ROUNDS, 
+        return Math.max(MIN_BCRYPT_LOG_ROUNDS, Math.min(MAX_BCRYPT_LOG_ROUNDS,
                 (int) Math.round(Math.log(iterations) / Math.log(2) + 1)));
     }
 }
