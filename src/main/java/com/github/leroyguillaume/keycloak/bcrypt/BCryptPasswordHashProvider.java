@@ -14,6 +14,10 @@ import java.io.IOException;
  * @author <a href="mailto:pro.guillaume.leroy@gmail.com">Guillaume Leroy</a>
  */
 public class BCryptPasswordHashProvider implements PasswordHashProvider {
+    // BCrypt uses min of 4 and max of 30 2**log_rounds
+    private final int MAX_BCRYPT_LOG_ROUNDS = 30;
+    private final int MIN_BCRYPT_LOG_ROUNDS = 4;
+
     private final int defaultIterations;
     private final String providerId;
 
@@ -34,8 +38,8 @@ public class BCryptPasswordHashProvider implements PasswordHashProvider {
 
     @Override
     public String encode(String rawPassword, int iterations) {
-        String salt = iterations == -1 ? BCrypt.gensalt(defaultIterations) : BCrypt.gensalt(iterations);
-        return BCrypt.hashpw(rawPassword, salt);
+        int logRounds = iterations == -1 ? iterationsToLogRounds(defaultIterations) : iterationsToLogRounds(iterations);
+        return BCrypt.hashpw(rawPassword, BCrypt.gensalt(logRounds));
     }
 
     @Override
@@ -44,18 +48,17 @@ public class BCryptPasswordHashProvider implements PasswordHashProvider {
             iterations = defaultIterations;
         }
 
-        String salt = BCrypt.gensalt(iterations);
+        String salt = BCrypt.gensalt(iterationsToLogRounds(iterations));
         String password = BCrypt.hashpw(rawPassword, salt);
 
         credential.setAlgorithm(providerId);
         credential.setType(UserCredentialModel.PASSWORD);
         credential.setHashIterations(iterations);
         credential.setValue(password);
-        try {
-            credential.setSalt(Base64.decode(salt));
-        } catch (IOException exception) {
-            throw new RuntimeException(exception);
-        }
+
+        // Salt encoding is modified base64 so standard decode does not work
+        // No need to actually record salt separately   
+        credential.setSalt(new byte[0]);
     }
 
     @Override
@@ -66,5 +69,11 @@ public class BCryptPasswordHashProvider implements PasswordHashProvider {
     @Override
     public boolean verify(String rawPassword, CredentialModel credential) {
         return BCrypt.checkpw(rawPassword, credential.getValue());
+    }
+
+    private int iterationsToLogRounds(int iterations) {
+         // bcrypt uses 2**log2_rounds with a min of 4 and max of 30 log rounds
+        return Math.max(MIN_BCRYPT_LOG_ROUNDS, Math.min(MAX_BCRYPT_LOG_ROUNDS, 
+                (int) Math.round(Math.log(iterations) / Math.log(2) + 1)));
     }
 }
