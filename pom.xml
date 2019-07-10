@@ -6,7 +6,7 @@
 
     <groupId>com.github.leroyguillaume</groupId>
     <artifactId>keycloak-bcrypt</artifactId>
-    <version>0.1.0</version>
+    <version>1.0.0</version>
 
     <properties>
         <!-- Maven -->
