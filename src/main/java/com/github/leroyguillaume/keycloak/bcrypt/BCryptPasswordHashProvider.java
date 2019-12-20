@@ -73,7 +73,8 @@ public class BCryptPasswordHashProvider implements PasswordHashProvider {
 
     private int iterationsToLogRounds(int iterations) {
          // bcrypt uses 2**log2_rounds with a min of 4 and max of 30 log rounds
+         // Always round up if iterations represent a fractional number of rounds
         return Math.max(MIN_BCRYPT_LOG_ROUNDS, Math.min(MAX_BCRYPT_LOG_ROUNDS, 
-                (int) Math.round(Math.log(iterations) / Math.log(2) + 1)));
+                (int) Math.ceil(Math.log(iterations) / Math.log(2))));
     }
 }
