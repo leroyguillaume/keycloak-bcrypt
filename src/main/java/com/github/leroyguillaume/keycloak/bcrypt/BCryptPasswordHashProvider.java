@@ -1,14 +1,10 @@
 package com.github.leroyguillaume.keycloak.bcrypt;
 
 import org.jboss.logging.Logger;
-import org.keycloak.common.util.Base64;
 import org.keycloak.models.credential.PasswordCredentialModel;
 import org.keycloak.credential.hash.PasswordHashProvider;
 import org.keycloak.models.PasswordPolicy;
-import org.keycloak.models.UserCredentialModel;
 import org.mindrot.jbcrypt.BCrypt;
-
-import java.io.IOException;
 
 /**
  * @author <a href="mailto:pro.guillaume.leroy@gmail.com">Guillaume Leroy</a>
