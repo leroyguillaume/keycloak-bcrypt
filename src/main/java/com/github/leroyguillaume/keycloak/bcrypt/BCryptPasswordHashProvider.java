@@ -7,6 +7,8 @@ import org.keycloak.credential.CredentialModel;
 import org.keycloak.credential.hash.PasswordHashProvider;
 import org.keycloak.models.PasswordPolicy;
 import org.keycloak.models.UserCredentialModel;
+import org.keycloak.models.credential.PasswordCredentialModel;
+import org.keycloak.models.credential.dto.PasswordCredentialData;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.io.IOException;
@@ -22,18 +24,19 @@ public class BCryptPasswordHashProvider implements PasswordHashProvider {
     private final int defaultIterations;
     private final String providerId;
 
-    public BCryptPasswordHashProvider(String providerId, int defaultIterations) {
+    BCryptPasswordHashProvider(String providerId, int defaultIterations) {
         this.providerId = providerId;
         this.defaultIterations = defaultIterations;
     }
 
     @Override
-    public boolean policyCheck(PasswordPolicy policy, CredentialModel credential) {
-        int policyHashIterations = policy.getHashIterations();
+    public boolean policyCheck(PasswordPolicy passwordPolicy, PasswordCredentialModel passwordCredentialModel) {
+        int policyHashIterations = passwordPolicy.getHashIterations();
         if (policyHashIterations == -1) {
             policyHashIterations = defaultIterations;
         }
 
+        PasswordCredentialData credential = passwordCredentialModel.getPasswordCredentialData();
         return credential.getHashIterations() == policyHashIterations && providerId.equals(credential.getAlgorithm());
     }
 
@@ -44,22 +47,15 @@ public class BCryptPasswordHashProvider implements PasswordHashProvider {
     }
 
     @Override
-    public void encode(String rawPassword, int iterations, CredentialModel credential) {
-        if (iterations == -1) {
-            iterations = defaultIterations;
-        }
-
-        String salt = BCrypt.gensalt(iterationsToLogRounds(iterations));
-        String password = BCrypt.hashpw(rawPassword, salt);
-
-        credential.setAlgorithm(providerId);
-        credential.setType(UserCredentialModel.PASSWORD);
-        credential.setHashIterations(iterations);
-        credential.setValue(password);
-
-        // Salt encoding is modified base64 so standard decode does not work
-        // No need to actually record salt separately
-        credential.setSalt(new byte[0]);
+    public PasswordCredentialModel encodedCredential(String rawPassword, int iterations) {
+        return PasswordCredentialModel.createFromValues(
+                providerId,
+                // Salt encoding is modified base64 so standard decode does not work
+                // No need to actually record salt separately
+                new byte[0],
+                iterations == -1 ? defaultIterations : iterations,
+                this.encode(rawPassword, iterations)
+        );
     }
 
     @Override
@@ -68,8 +64,8 @@ public class BCryptPasswordHashProvider implements PasswordHashProvider {
     }
 
     @Override
-    public boolean verify(String rawPassword, CredentialModel credential) {
-        return BCrypt.checkpw(rawPassword, credential.getValue());
+    public boolean verify(String rawPassword, PasswordCredentialModel passwordCredentialModel) {
+        return BCrypt.checkpw(rawPassword, passwordCredentialModel.getPasswordSecretData().getValue());
     }
 
     private int iterationsToLogRounds(int iterations) {
