@@ -19,6 +19,16 @@ You need to restart Keycloak.
 
 `mkdir -p ./keycloak/bcrypt/dependency/jbcrypt`
 
+Add the following `module.xml` file in directory created above:
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<module xmlns="urn:jboss:module:1.5" name="org.mindrot.jbcrypt">
+    <resources>
+        <resource-root path="jbcrypt-0.4.jar"/>
+    </resources>
+</module>
+```
+
 `curl https://repo1.maven.org/maven2/org/mindrot/jbcrypt/0.4/jbcrypt-0.4.jar > ./keycloak/bcrypt/dependency/jbcryptjbcrypt-0.4.jar`
 
 
@@ -28,7 +38,7 @@ You need to restart Keycloak.
 
 
 docker-compose.yml
-``` 
+```yml
 keycloak:
     image: jboss/keycloak:9.0.0
     volumes:
