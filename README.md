@@ -15,9 +15,9 @@ curl -L https://github.com/leroyguillaume/keycloak-bcrypt/releases/download/1.2.
 ```
 You need to restart Keycloak.
 
-## Install with Docker Compose
+## Install with Docker Compose with volume
 
-`mkdir -p ./keycloak/bcrypt/dependency/jbcrypt`
+`mkdir -p keycloak/bcrypt/dependency/jbcrypt`
 
 Add the following `module.xml` file in directory created above:
 ```xml
@@ -32,7 +32,7 @@ Add the following `module.xml` file in directory created above:
 `curl https://repo1.maven.org/maven2/org/mindrot/jbcrypt/0.4/jbcrypt-0.4.jar > ./keycloak/bcrypt/dependency/jbcryptjbcrypt-0.4.jar`
 
 
-`mkdir -p ./keycloak/bcrypt/deployments`
+`mkdir -p keycloak/bcrypt/deployments`
 
 `curl -L https://github.com/leroyguillaume/keycloak-bcrypt/releases/download/1.2.0/keycloak-bcrypt-1.2.0.jar > ./keycloak/bcrypt/deployments`
 
@@ -40,9 +40,45 @@ Add the following `module.xml` file in directory created above:
 docker-compose.yml
 ```yml
 keycloak:
-    image: jboss/keycloak:9.0.0
+    image: jboss/keycloak:9.0.3
     volumes:
       # Adds bcrypt support for password encoding
       - ./keycloak/bcrypt/dependency/jbcrypt:/opt/jboss/keycloak/modules/org/mindrot/jbcrypt/main
       - ./keycloak/bcrypt/deployments:/opt/jboss/keycloak/standalone/deployments
+```
+
+## Install with Docker Compose and Dockerfile (without volume)
+
+```bash
+mkdir -p docker/keycloak/bcrypt/dependency/jbcrypt
+```
+
+Add the following `module.xml` file in directory created above:
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<module xmlns="urn:jboss:module:1.5" name="org.mindrot.jbcrypt">
+    <resources>
+        <resource-root path="jbcrypt-0.4.jar"/>
+    </resources>
+</module>
+```
+
+Add the following `Dockerfile` file in `docker/keycloak`: 
+
+```Dockerfile
+FROM jboss/keycloak:9.0.3
+
+COPY --chown=1000:0 bcrypt/dependency/jbcrypt /opt/jboss/keycloak/modules/org/mindrot/jbcrypt/main/
+ADD --chown=1000:0 https://repo1.maven.org/maven2/org/mindrot/jbcrypt/0.4/jbcrypt-0.4.jar /opt/jboss/keycloak/modules/org/mindrot/jbcrypt/main/
+ADD --chown=1000:0 https://github.com/leroyguillaume/keycloak-bcrypt/releases/download/1.2.0/keycloak-bcrypt-1.2.0.jar /opt/jboss/keycloak/standalone/deployments/
+RUN ls -ahl /opt/jboss/keycloak/modules/org/mindrot/jbcrypt/main/
+```
+
+Next add the following Docker Compose service:
+
+```yml
+  keycloak:
+    build:
+      context: docker/keycloak
+      dockerfile: Dockerfile
 ```
