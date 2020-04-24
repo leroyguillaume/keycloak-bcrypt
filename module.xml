@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module xmlns="urn:jboss:module:1.5" name="org.mindrot.jbcrypt">
+    <resources>
+        <resource-root path="jbcrypt-0.4.jar"/>
+    </resources>
+</module>
