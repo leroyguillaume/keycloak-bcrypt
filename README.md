@@ -55,4 +55,4 @@ The WordPress passwords can be inserted directly into the CREDENTIALS table in K
 | :-- | :-- |
 | {"value":"$2y$10$Ma/RzN/J089o4gCs1MbzcOTvkbGXvmkEJXwNh3a3Bj1ZTnlwi93u.","salt":""} | {"hashIterations":-1,"algorithm":"bcrypt"}|
 
-Please note that the hashIterations must either be -1 or match the defualt set up in keycloak.
+Please note that the hashIterations must either be -1 or match the default set up in keycloak.
