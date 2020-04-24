@@ -15,7 +15,14 @@ curl -L https://github.com/leroyguillaume/keycloak-bcrypt/releases/download/1.2.
 ```
 You need to restart Keycloak.
 
-## Install with Docker Compose with volume
+## Run with Docker
+
+```bash
+docker build -t keycloak .
+docker run keycloak
+```
+
+## Install with Docker Compose and volumes
 
 `mkdir -p keycloak/bcrypt/dependency/jbcrypt`
 
@@ -45,19 +52,4 @@ keycloak:
       # Adds bcrypt support for password encoding
       - ./keycloak/bcrypt/dependency/jbcrypt:/opt/jboss/keycloak/modules/org/mindrot/jbcrypt/main
       - ./keycloak/bcrypt/deployments:/opt/jboss/keycloak/standalone/deployments
-```
-
-## Install with Docker
-
-```bash
-docker build .
-```
-
-Next add the following Docker Compose service:
-
-```yml
-  keycloak:
-    build:
-      context: .
-      dockerfile: Dockerfile
 ```
