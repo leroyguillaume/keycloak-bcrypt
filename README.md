@@ -2,6 +2,8 @@
 
 Add a password hash provider to handle BCrypt passwords inside Keycloak.
 
+The password provider supports all current versions of bcrypt. For details please refer to [https://en.wikipedia.org/wiki/Bcrypt].
+
 ## Build
 ```
 mvn clean package
@@ -44,3 +46,13 @@ keycloak:
       - ./keycloak/bcrypt/dependency/jbcrypt:/opt/jboss/keycloak/modules/org/mindrot/jbcrypt/main
       - ./keycloak/bcrypt/deployments:/opt/jboss/keycloak/standalone/deployments
 ```
+
+## Porting WordPress users to KeyCloak
+This module can be used to port an existing user database from WordPress internal database to KeyCloak without the need for new user passwords.
+The WordPress passwords can be inserted directly into the CREDENTIALS table in KeyCloak. Below is an example of the two columns in the database:
+
+| SECRET_DATA | CREDENTIAL_DATA |
+| :-- | :-- |
+| {"value":"$2y$10$Ma/RzN/J089o4gCs1MbzcOTvkbGXvmkEJXwNh3a3Bj1ZTnlwi93u.","salt":""} | {"hashIterations":-1,"algorithm":"bcrypt"}|
+
+Please note that the hashIterations must either be -1 or match the defualt set up in keycloak.
