@@ -4,7 +4,10 @@ import org.jboss.logging.Logger;
 import org.keycloak.models.credential.PasswordCredentialModel;
 import org.keycloak.credential.hash.PasswordHashProvider;
 import org.keycloak.models.PasswordPolicy;
-import org.mindrot.jbcrypt.BCrypt;
+import at.favre.lib.crypto.bcrypt.BCrypt;
+
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 
 /**
  * @author <a href="mailto:pro.guillaume.leroy@gmail.com">Guillaume Leroy</a>
@@ -17,7 +20,7 @@ public class BCryptPasswordHashProvider implements PasswordHashProvider {
     private final int defaultIterations;
     private final String providerId;
 
-    public BCryptPasswordHashProvider(String providerId, int defaultIterations) {
+    BCryptPasswordHashProvider(String providerId, int defaultIterations) {
         this.providerId = providerId;
         this.defaultIterations = defaultIterations;
     }
@@ -29,8 +32,9 @@ public class BCryptPasswordHashProvider implements PasswordHashProvider {
             policyHashIterations = defaultIterations;
         }
 
-        return credential.getPasswordCredentialData().getHashIterations() == policyHashIterations
-                && providerId.equals(credential.getPasswordCredentialData().getAlgorithm());
+        return (credential.getPasswordCredentialData().getHashIterations() == policyHashIterations ||
+                credential.getPasswordCredentialData().getHashIterations() == -1)
+                        && providerId.equals(credential.getPasswordCredentialData().getAlgorithm());
     }
 
     @Override
@@ -44,7 +48,8 @@ public class BCryptPasswordHashProvider implements PasswordHashProvider {
     @Override
     public String encode(String rawPassword, int iterations) {
         String salt = generateBCryptSalt(iterations);
-        return BCrypt.hashpw(rawPassword, salt);
+        //return BCrypt.hashpw(rawPassword, salt);
+        return BCrypt.with(BCrypt.Version.VERSION_2Y).hashToString(iterations, rawPassword.toCharArray());
     }
 
     @Override
@@ -54,12 +59,22 @@ public class BCryptPasswordHashProvider implements PasswordHashProvider {
 
     @Override
     public boolean verify(String rawPassword, PasswordCredentialModel credential) {
-        return BCrypt.checkpw(rawPassword, credential.getPasswordSecretData().getValue());
+        final String hash = credential.getPasswordSecretData().getValue();
+        BCrypt.Result verifier = BCrypt.verifyer().verify(rawPassword.toCharArray(), hash.toCharArray());
+        return verifier.verified;
     }
 
     private String generateBCryptSalt(int iterations) {
-        int logRounds = iterations == -1 ? iterationsToLogRounds(defaultIterations) : iterationsToLogRounds(iterations);
-        return BCrypt.gensalt(logRounds);
+        final int logRounds = iterations == -1 ? iterationsToLogRounds(defaultIterations) : iterationsToLogRounds(iterations);
+        SecureRandom rnd;
+        try {
+            rnd= SecureRandom.getInstanceStrong();
+        } catch (NoSuchAlgorithmException e) {
+            rnd = new SecureRandom();
+        }
+        rnd.setSeed(logRounds);
+
+        return rnd.toString();
     }
 
     private int iterationsToLogRounds(int iterations) {

@@ -1,0 +1,11 @@
+This document contains the list of Third Party Software included with
+keycloak-bcrypt, along with the license information.
+
+Third Party Software may impose additional restrictions and it is the
+user's responsibility to ensure that they have met the licensing
+requirements of PhantomJS and the relevant license of the Third Party
+Software they are using.
+
+at.favre.lib/bcrypt
+License:   Apache License 2.0
+Reference: https://github.com/patrickfav/bcrypt/blob/master/LICENSE
