@@ -9,12 +9,7 @@ mvn clean package
 
 ## Test with docker-compose
 ```bash
-cp target/keycloak-bcrypt-1.4.0.jar docker/
-docker-compose up -d
-docker-compose exec keycloak /opt/jboss/keycloak/bin/add-user-keycloak.sh -u admin -p admin
-docker-compose exec keycloak /opt/jboss/keycloak/bin/jboss-cli.sh --command="module add --name=org.mindrot.jbcrypt --resources=/mnt/jbcrypt-0.4.jar"
-docker-compose exec keycloak cp /mnt/keycloak-bcrypt-1.4.0.jar /opt/jboss/keycloak/standalone/deployments/keycloak-bcrypt-1.4.0.jar
-docker-compose restart keycloak
+./init-keycloak.sh
 ```
 
 ## Install
