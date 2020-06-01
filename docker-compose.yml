@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak
+    networks:
+      - keycloak
+
+  keycloak:
+    image: jboss/keycloak:10.0.1
+    environment:
+      DB_ADDR: postgres
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
+      DB_PASSWORD: keycloak
+    depends_on:
+      - postgres
+    volumes:
+      - ./docker:/mnt
+    networks:
+      - keycloak
+    ports:
+      - 8080:8080
+
+networks:
+  keycloak:
+    driver: bridge
