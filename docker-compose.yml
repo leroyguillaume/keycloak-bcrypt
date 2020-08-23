@@ -7,8 +7,6 @@ services:
       POSTGRES_DB: keycloak
       POSTGRES_USER: keycloak
       POSTGRES_PASSWORD: keycloak
-    networks:
-      - keycloak
 
   keycloak:
     image: jboss/keycloak:10.0.1
@@ -21,11 +19,7 @@ services:
       - postgres
     volumes:
       - ./docker:/mnt
-    networks:
-      - keycloak
     ports:
       - 8080:8080
-
-networks:
-  keycloak:
-    driver: bridge
+    security_opt:
+      label: disable
