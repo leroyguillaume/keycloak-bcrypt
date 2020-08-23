@@ -14,8 +14,12 @@ Add a password hash provider to handle BCrypt passwords inside Keycloak.
 
 ## Install
 ```
-curl https://repo1.maven.org/maven2/org/mindrot/jbcrypt/0.4/jbcrypt-0.4.jar > jbcrypt-0.4.jar
-KEYCLOAK_HOME/bin/jboss-cli.sh --command="module add --name=org.mindrot.jbcrypt --resources=jbcrypt-0.4.jar"
-curl -L https://github.com/leroyguillaume/keycloak-bcrypt/releases/download/1.4.0/keycloak-bcrypt-1.4.0.jar > KEYCLOAK_HOME/standalone/deployments/keycloak-bcrypt-1.4.0.jar
+curl https://repo1.maven.org/maven2/at/favre/lib/bcrypt/0.9.0/bcrypt-0.9.0.jar > bcrypt-0.9.0.jar
+curl -L https://github.com/leroyguillaume/keycloak-bcrypt/releases/download/1.5.0/keycloak-bcrypt-1.5.0.jar > KEYCLOAK_HOME/standalone/deployments/keycloak-bcrypt-1.5.0.jar
 ```
 You need to restart Keycloak.
+
+## How to use
+Go to `Authentication` / `Password policy` and add hashing algorithm policy with value `bcrypt`.
+
+To test if installation works, create new user and set its credentials.

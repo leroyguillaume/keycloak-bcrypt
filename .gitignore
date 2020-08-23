@@ -10,4 +10,4 @@ build
 target
 
 # Docker
-docker/keycloak-bcrypt-*
+docker

@@ -3,31 +3,40 @@ plugins {
 }
 
 group = "com.github.leroyguillaume"
-version = "1.4.0"
+version = "1.5.0"
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    val jbcryptVersion = "0.4"
+    val bcryptVersion = "0.9.0"
     val jbossLoggingVersion = "3.4.1.Final"
     val keycloakVersion = "10.0.1"
 
-    // JBcrypt
-    implementation("org.mindrot:jbcrypt:$jbcryptVersion")
+    // BCrypt
+    implementation("at.favre.lib:bcrypt:$bcryptVersion")
 
     // JBoss
-    implementation("org.jboss.logging:jboss-logging:$jbossLoggingVersion")
+    compileOnly("org.jboss.logging:jboss-logging:$jbossLoggingVersion")
 
     // Keycloak
-    implementation("org.keycloak:keycloak-common:$keycloakVersion")
-    implementation("org.keycloak:keycloak-core:$keycloakVersion")
-    implementation("org.keycloak:keycloak-server-spi:$keycloakVersion")
-    implementation("org.keycloak:keycloak-server-spi-private:$keycloakVersion")
+    compileOnly("org.keycloak:keycloak-common:$keycloakVersion")
+    compileOnly("org.keycloak:keycloak-core:$keycloakVersion")
+    compileOnly("org.keycloak:keycloak-server-spi:$keycloakVersion")
+    compileOnly("org.keycloak:keycloak-server-spi-private:$keycloakVersion")
 }
 
 tasks {
+    jar {
+        from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) }) {
+            exclude("META-INF/MANIFEST.MF")
+            exclude("META-INF/*.SF")
+            exclude("META-INF/*.DSA")
+            exclude("META-INF/*.RSA")
+        }
+    }
+
     wrapper {
         gradleVersion = "6.4"
     }
