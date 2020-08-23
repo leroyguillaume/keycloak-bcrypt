@@ -4,7 +4,7 @@ Add a password hash provider to handle BCrypt passwords inside Keycloak.
 
 ## Build
 ```bash
-mvn clean package
+./gradlew jar
 ```
 
 ## Test with docker-compose
