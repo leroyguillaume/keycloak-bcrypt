@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: keycloak
 
   keycloak:
-    image: jboss/keycloak:10.0.1
+    build: ./docker
     environment:
       DB_ADDR: postgres
       DB_DATABASE: keycloak
@@ -17,8 +17,6 @@ services:
       DB_PASSWORD: keycloak
     depends_on:
       - postgres
-    volumes:
-      - ./docker:/mnt
     ports:
       - 8080:8080
     security_opt:
