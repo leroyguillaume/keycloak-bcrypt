@@ -20,4 +20,4 @@ services:
     ports:
       - 8080:8080
     security_opt:
-      label: disable
+      - 'label:disable'
