@@ -12,7 +12,7 @@ repositories {
 dependencies {
     val bcryptVersion = "0.9.0"
     val jbossLoggingVersion = "3.4.1.Final"
-    val keycloakVersion = "10.0.1"
+    val keycloakVersion = "16.1.0"
 
     // BCrypt
     implementation("at.favre.lib:bcrypt:$bcryptVersion")
@@ -28,6 +28,11 @@ dependencies {
 }
 
 tasks {
+    java {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+
     jar {
         from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) }) {
             exclude("META-INF/MANIFEST.MF")
