@@ -29,7 +29,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: docker
-          build-args: 
-            - keycloak_version=${{ github.event.inputs.keycloak_version }}
+          build-args: keycloak_version=${{ github.event.inputs.keycloak_version }}
           push: true
           tags: gleroy/keycloak-bcrypt:${{ github.event.inputs.keycloak_version }}_${{ github.event.inputs.keycloak_bcrypt_version }}
