@@ -5,7 +5,7 @@ on:
         description: Keycloak version
         required: true
       keycloak_bcrypt_version:
-        descrption: Keycloak BCrypt version
+        description: Keycloak BCrypt version
         required: true
         default: 1.5.0
 
@@ -29,6 +29,8 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: docker
-          build-args: keycloak_version=${{ github.event.inputs.keycloak_version }}
+          build-args: |
+            keycloak_version=${{ github.event.inputs.keycloak_version }}
+            keycloak_bcrypt_version=${{ github.event.inputs.keycloak_bcrypt_version }}
           push: true
-          tags: gleroy/keycloak-bcrypt:${{ github.event.inputs.keycloak_version }}_${{ github.event.inputs.keycloak_bcrypt_version }}
+          tags: gleroy/keycloak-bcrypt:${{ github.event.inputs.keycloak_version }}_${{ github.event.inputs.keycloak_bcrypt_version }},gleroy/keycloak-bcrypt:latest

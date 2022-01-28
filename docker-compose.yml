@@ -9,10 +9,7 @@ services:
       POSTGRES_PASSWORD: keycloak
 
   keycloak:
-    build: 
-      context: ./docker
-      args:
-        - keycloak_version=16.1.1
+    image: gleroy/keycloak-bcrypt
     environment:
       DB_ADDR: postgres
       DB_DATABASE: keycloak
