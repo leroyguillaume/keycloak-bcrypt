@@ -9,7 +9,10 @@ services:
       POSTGRES_PASSWORD: keycloak
 
   keycloak:
-    build: ./docker
+    build: 
+      context: ./docker
+      args:
+        - keycloak_version=16.1.1
     environment:
       DB_ADDR: postgres
       DB_DATABASE: keycloak
