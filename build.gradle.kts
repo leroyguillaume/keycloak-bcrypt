@@ -12,7 +12,7 @@ repositories {
 dependencies {
     val bcryptVersion = "0.9.0"
     val jbossLoggingVersion = "3.4.1.Final"
-    val keycloakVersion = project.properties("dependency.keycloak.version")
+    val keycloakVersion = project.property("dependency.keycloak.version")
 
     // BCrypt
     implementation("at.favre.lib:bcrypt:$bcryptVersion")
