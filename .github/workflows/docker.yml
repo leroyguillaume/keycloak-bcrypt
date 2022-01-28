@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Build
         run: gradle jar -Pdependency.keycloak.version=${{ github.event.inputs.keycloak_version }}
-      - run: cp build/libs/keycloak-bcrypt-${{ keycloak_bcrypt_version }}.jar docker
+      - run: cp build/libs/keycloak-bcrypt-${{ github.event.inputs.keycloak_bcrypt_version }}.jar docker
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with:
@@ -28,4 +28,4 @@ jobs:
         with:
           context: docker
           push: true
-          tags: gleroy/keycloak-bcrypt:${{ keycloak_version }}_${{ keycloak_bcrypt_version }}
+          tags: gleroy/keycloak-bcrypt:${{ github.event.inputs.keycloak_version }}_${{ github.event.inputs.keycloak_bcrypt_version }}
