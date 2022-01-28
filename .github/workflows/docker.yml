@@ -9,6 +9,8 @@ on:
         required: true
         default: 1.5.0
 
+name: Docker
+
 jobs:
   docker:
     name: Docker
