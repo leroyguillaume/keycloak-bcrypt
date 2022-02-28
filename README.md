@@ -23,15 +23,21 @@ docker build \
 
 ```bash
 docker-compose up -d
-# Waiting for Keycloak startup
-docker-compose exec keycloak /opt/jboss/keycloak/bin/add-user-keycloak.sh -u admin -p admin # to create admin user
-docker-compose restart keycloak
 ```
 
 ## Install
 
+### >= 17.0.0
+
 ```bash
-curl -L https://github.com/leroyguillaume/keycloak-bcrypt/releases/download/${KEYCLOAK_BCRYPT_VERSION}/keycloak-bcrypt-${KEYCLOAK_BCRYPT_VERSION}.jar > KEYCLOAK_HOME/standalone/deployments/keycloak-bcrypt-${KEYCLOAK_BCRYPT_VERSION}.jar
+curl -L https://github.com/leroyguillaume/keycloak-bcrypt/releases/download/${KEYCLOAK_BCRYPT_VERSION}/keycloak-bcrypt-${KEYCLOAK_BCRYPT_VERSION}.jar > ${KEYCLOAK_HOME}/providers/keycloak-bcrypt-${KEYCLOAK_BCRYPT_VERSION}.jar
+```
+You need to restart Keycloak.
+
+### < 17.0.0
+
+```bash
+curl -L https://github.com/leroyguillaume/keycloak-bcrypt/releases/download/${KEYCLOAK_BCRYPT_VERSION}/keycloak-bcrypt-${KEYCLOAK_BCRYPT_VERSION}.jar > ${KEYCLOAK_HOME}/standalone/deployments/keycloak-bcrypt-${KEYCLOAK_BCRYPT_VERSION}.jar
 ```
 You need to restart Keycloak.
 
@@ -39,14 +45,14 @@ You need to restart Keycloak.
 
 ```bash
 docker run \
-    -e DB_ADDR=${DB_ADDR} \
-    -e DB_DATABASE=${DB_DATABASE} \
-    -e DB_USER=${DB_USER} \
-    -e DB_PASSWORD=${DB_PASSWORD} \
-    gleroy/keycloak-bcrypt
+    -e KEYCLOAK_ADMIN=${KEYCLOAK_ADMIN} \
+    -e KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD} \
+    -e KC_HOSTNAME=${KC_HOSTNAME} \
+    gleroy/keycloak-bcrypt \
+    start
 ```
 
-The image is based on [Keycloak official](https://hub.docker.com/r/jboss/keycloak/) one.
+The image is based on [Keycloak official](https://quay.io/repository/keycloak/keycloak) one.
 
 ## How to use
 Go to `Authentication` / `Password policy` and add hashing algorithm policy with value `bcrypt`.

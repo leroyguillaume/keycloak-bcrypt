@@ -1,23 +1,13 @@
 version: '3'
 
 services:
-  postgres:
-    image: postgres
-    environment:
-      POSTGRES_DB: keycloak
-      POSTGRES_USER: keycloak
-      POSTGRES_PASSWORD: keycloak
-
   keycloak:
     image: gleroy/keycloak-bcrypt
     environment:
-      DB_ADDR: postgres
-      DB_DATABASE: keycloak
-      DB_USER: keycloak
-      DB_PASSWORD: keycloak
-    depends_on:
-      - postgres
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
     ports:
       - 8080:8080
     security_opt:
       - 'label:disable'
+    command: ["start-dev"]
