@@ -19,10 +19,7 @@ public class BCryptPasswordHashProvider implements PasswordHashProvider {
 
     @Override
     public boolean policyCheck(PasswordPolicy policy, PasswordCredentialModel credential) {
-        int policyHashIterations = policy.getHashIterations();
-        if (policyHashIterations == -1) {
-            policyHashIterations = defaultIterations;
-        }
+        int policyHashIterations = policy.getHashIterations() == -1 ? defaultIterations : policy.getHashIterations();
 
         return credential.getPasswordCredentialData().getHashIterations() == policyHashIterations
                 && providerId.equals(credential.getPasswordCredentialData().getAlgorithm());
@@ -38,12 +35,7 @@ public class BCryptPasswordHashProvider implements PasswordHashProvider {
 
     @Override
     public String encode(String rawPassword, int iterations) {
-        int cost;
-        if (iterations == -1) {
-            cost = defaultIterations;
-        } else {
-            cost = iterations;
-        }
+        int cost = iterations == -1 ? defaultIterations : iterations;
         return BCrypt.with(BCrypt.Version.VERSION_2Y).hashToString(cost, rawPassword.toCharArray());
     }
 
@@ -55,7 +47,8 @@ public class BCryptPasswordHashProvider implements PasswordHashProvider {
     @Override
     public boolean verify(String rawPassword, PasswordCredentialModel credential) {
         final String hash = credential.getPasswordSecretData().getValue();
-        BCrypt.Result verifier = BCrypt.verifyer().verify(rawPassword.toCharArray(), hash.toCharArray());
+        BCrypt.Result verifier = BCrypt.verifyer(BCrypt.Version.VERSION_2Y)
+                .verify(rawPassword.toCharArray(), hash.toCharArray());
         return verifier.verified;
     }
 }
