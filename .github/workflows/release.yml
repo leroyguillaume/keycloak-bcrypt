@@ -10,8 +10,8 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - run: echo ::set-env name=RELEASE_VERSION::${GITHUB_REF:10}
+      - name: Checkout code
+        uses: actions/checkout@v2
       - name: Build
         run: ./gradlew jar
       - name: Create release
@@ -30,6 +30,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./build/libs/keycloak-bcrypt-${{ env.RELEASE_VERSION }}.jar
-          asset_name: keycloak-bcrypt-${{ env.RELEASE_VERSION }}.jar
+          asset_path: ./build/libs/keycloak-bcrypt-${{ env.GITHUB_REF_NAME }}.jar
+          asset_name: keycloak-bcrypt-${{ env.GITHUB_REF_NAME }}.jar
           asset_content_type: application/java-archive
