@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "com.github.leroyguillaume"
-version = "1.5.0"
+version = "1.5.1"
 
 repositories {
     mavenCentral()
@@ -16,6 +16,7 @@ configurations {
 }
 
 dependencies {
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
     val bcryptVersion = "0.9.0"
     val jbossLoggingVersion = "3.4.1.Final"
     val keycloakVersion = project.property("dependency.keycloak.version")
@@ -31,9 +32,6 @@ dependencies {
     compileOnly("org.keycloak:keycloak-core:$keycloakVersion")
     compileOnly("org.keycloak:keycloak-server-spi:$keycloakVersion")
     compileOnly("org.keycloak:keycloak-server-spi-private:$keycloakVersion")
-
-    // JUnit
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
 }
 
 tasks {
