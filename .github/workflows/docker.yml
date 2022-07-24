@@ -7,7 +7,7 @@ on:
       keycloak_bcrypt_version:
         description: Keycloak BCrypt version
         required: true
-        default: 1.5.0
+        default: 1.5.1
 
 name: Docker
 
