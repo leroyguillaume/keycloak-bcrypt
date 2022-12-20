@@ -1,10 +1,9 @@
 package com.github.leroyguillaume.keycloak.bcrypt;
 
-import at.favre.lib.crypto.bcrypt.BCrypt;
+import org.mindrot.jbcrypt.BCrypt;
 import org.keycloak.credential.hash.PasswordHashProvider;
 import org.keycloak.models.PasswordPolicy;
 import org.keycloak.models.credential.PasswordCredentialModel;
-
 import java.util.Base64;
 
 /**
@@ -38,7 +37,7 @@ public class BCryptPasswordHashProvider implements PasswordHashProvider {
     @Override
     public String encode(final String rawPassword, final int iterations) {
         final int cost = iterations == -1 ? defaultIterations : iterations;
-        return BCrypt.with(BCrypt.Version.VERSION_2Y).hashToString(cost, rawPassword.toCharArray());
+        return BCrypt.hashpw(rawPassword, BCrypt.gensalt(cost));
     }
 
     @Override
@@ -49,7 +48,6 @@ public class BCryptPasswordHashProvider implements PasswordHashProvider {
     @Override
     public boolean verify(final String rawPassword, final PasswordCredentialModel credential) {
         final String hash = credential.getPasswordSecretData().getValue();
-        final BCrypt.Result verifier = BCrypt.verifyer().verify(rawPassword.toCharArray(), hash.toCharArray());
-        return verifier.verified;
+        return BCrypt.checkpw(rawPassword, hash);
     }
 }

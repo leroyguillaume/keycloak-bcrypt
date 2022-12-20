@@ -16,13 +16,13 @@ configurations {
 }
 
 dependencies {
-    val bcryptVersion = "0.9.0"
+    val bcryptVersion = "0.4.3"
     val jbossLoggingVersion = "3.4.1.Final"
     val keycloakVersion = project.property("dependency.keycloak.version")
     val junitVersion = "5.8.2"
 
     // BCrypt
-    implementation("at.favre.lib:bcrypt:$bcryptVersion")
+    implementation("de.svenkubiak:jBCrypt:$bcryptVersion")
 
     // JBoss
     compileOnly("org.jboss.logging:jboss-logging:$jbossLoggingVersion")
