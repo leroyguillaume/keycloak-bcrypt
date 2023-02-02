@@ -38,7 +38,7 @@ public class BCryptPasswordHashProvider implements PasswordHashProvider {
     @Override
     public String encode(final String rawPassword, final int iterations) {
         final int cost = iterations == -1 ? defaultIterations : iterations;
-        return BCrypt.with(BCrypt.Version.VERSION_2Y).hashToString(cost, rawPassword.toCharArray());
+        return BCrypt.with(BCrypt.Version.VERSION_2Y_NO_NULL_TERMINATOR).hashToString(cost, rawPassword.toCharArray());
     }
 
     @Override
@@ -49,7 +49,7 @@ public class BCryptPasswordHashProvider implements PasswordHashProvider {
     @Override
     public boolean verify(final String rawPassword, final PasswordCredentialModel credential) {
         final String hash = credential.getPasswordSecretData().getValue();
-        final BCrypt.Result verifier = BCrypt.verifyer().verify(rawPassword.toCharArray(), hash.toCharArray());
+        final BCrypt.Result verifier = BCrypt.verifyer(BCrypt.Version.VERSION_2Y_NO_NULL_TERMINATOR).verify(rawPassword.toCharArray(), hash.toCharArray());
         return verifier.verified;
     }
 }
