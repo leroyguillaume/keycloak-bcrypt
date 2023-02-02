@@ -5,7 +5,6 @@ import org.keycloak.credential.hash.PasswordHashProvider;
 import org.keycloak.models.PasswordPolicy;
 import org.keycloak.models.credential.PasswordCredentialModel;
 
-import java.util.Base64;
 
 /**
  * @author <a href="mailto:pro.guillaume.leroy@gmail.com">Guillaume Leroy</a>
