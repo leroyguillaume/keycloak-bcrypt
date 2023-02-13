@@ -16,7 +16,7 @@ configurations {
 }
 
 dependencies {
-    val bcryptVersion = "0.9.0"
+    val bcryptVersion = "0.10.2"
     val jbossLoggingVersion = "3.4.1.Final"
     val keycloakVersion = project.property("dependency.keycloak.version")
     val junitVersion = "5.8.2"
