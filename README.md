@@ -55,6 +55,6 @@ docker run \
 The image is based on [Keycloak official](https://quay.io/repository/keycloak/keycloak) one.
 
 ## How to use
-Go to `Authentication` / `Password policy` and add hashing algorithm policy with value `bcrypt`.
+Go to `Authentication` / `Policies` / `Password policy` and add hashing algorithm policy with value `bcrypt`.
 
 To test if installation works, create new user and set its credentials.

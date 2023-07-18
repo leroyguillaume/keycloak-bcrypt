@@ -1,3 +1,5 @@
+name: Docker
+
 on:
   workflow_dispatch:
     inputs:
@@ -7,24 +9,28 @@ on:
       keycloak_bcrypt_version:
         description: Keycloak BCrypt version
         required: true
-        default: 1.5.1
-
-name: Docker
+        default: 1.6.0
 
 jobs:
   docker:
     name: Docker
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
+
       - name: Build
         run: ./gradlew jar -Pdependency.keycloak.version=${{ github.event.inputs.keycloak_version }}
-      - run: cp build/libs/keycloak-bcrypt-${{ github.event.inputs.keycloak_bcrypt_version }}.jar docker
+
+      - name: Copy JAR into docker directory
+        run: cp build/libs/keycloak-bcrypt-${{ github.event.inputs.keycloak_bcrypt_version }}.jar docker
+
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
