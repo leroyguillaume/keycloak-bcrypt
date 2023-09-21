@@ -11,12 +11,10 @@ Add a password hash provider to handle BCrypt passwords inside Keycloak.
 ## Build Docker image
 
 ```bash
-cp build/libs/keycloak-bcrypt-${KEYCLOAK_BCRYPT_VERSION}.jar docker
 docker build \
     --build-arg keycloak_version=${KEYCLOAK_VERSION} \
-    --build-arg keycloak_bcrypt_version=${KEYCLOAK_BCRYPT_VERSION} \
     -t gleroy/keycloak-bcrypt \
-    docker
+    .
 ```
 
 ## Test with docker-compose

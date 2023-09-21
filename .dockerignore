@@ -1,0 +1,13 @@
+/.github
+/.gradle
+/.vscode
+/bin
+/build
+/conf
+/gradle
+/.dockerignore
+/.gitignore
+/docker-compose.yml
+/Dockerfile
+/LICENSE
+/README.md
