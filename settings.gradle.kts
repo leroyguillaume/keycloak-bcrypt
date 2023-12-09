@@ -1,1 +1,1 @@
-rootProject.name = "keycloak-bcrypt"
+rootProject.name = "keycloak-sha1"

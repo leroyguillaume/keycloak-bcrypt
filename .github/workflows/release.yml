@@ -33,7 +33,7 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: Upload jar
+      - name: Upload BCrypt jar
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -41,4 +41,14 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./build/libs/keycloak-bcrypt-${{ github.ref_name }}.jar
           asset_name: keycloak-bcrypt-${{ github.ref_name }}.jar
+          asset_content_type: application/java-archive
+
+      - name: Upload SHA-1 jar
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./build/libs/keycloak-sha1-${{ github.ref_name }}.jar
+          asset_name: keycloak-sha1-${{ github.ref_name }}.jar
           asset_content_type: application/java-archive

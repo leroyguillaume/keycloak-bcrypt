@@ -1,6 +1,9 @@
-# Keycloak BCrypt
+# Keycloak SHA-1
+
+A minimal fork of Keycloak BCrypt to also support passwords hashed with SHA-1 (in addition to BCrypt)
 
 Add a password hash provider to handle BCrypt passwords inside Keycloak.
+Add a password hash provider to handle SHA-1 passwords inside Keycloak.
 
 ## Build JAR
 
@@ -13,7 +16,7 @@ Add a password hash provider to handle BCrypt passwords inside Keycloak.
 ```bash
 docker build \
     --build-arg keycloak_version=${KEYCLOAK_VERSION} \
-    -t gleroy/keycloak-bcrypt \
+    -t jcschaff/keycloak-sha1 \
     .
 ```
 
@@ -28,14 +31,15 @@ docker-compose up -d
 ### >= 17.0.0
 
 ```bash
-curl -L https://github.com/leroyguillaume/keycloak-bcrypt/releases/download/${KEYCLOAK_BCRYPT_VERSION}/keycloak-bcrypt-${KEYCLOAK_BCRYPT_VERSION}.jar > ${KEYCLOAK_HOME}/providers/keycloak-bcrypt-${KEYCLOAK_BCRYPT_VERSION}.jar
+curl -L https://github.com/jcschaff/keycloak-sha1/releases/download/${KEYCLOAK_SHA1_VERSION}/keycloak-sha1-${KEYCLOAK_SHA1_VERSION}.jar > ${KEYCLOAK_HOME}/providers/keycloak-sha1-${KEYCLOAK_SHA1_VERSION}.jar
 ```
 You need to restart Keycloak.
 
 ### < 17.0.0
 
 ```bash
-curl -L https://github.com/leroyguillaume/keycloak-bcrypt/releases/download/${KEYCLOAK_BCRYPT_VERSION}/keycloak-bcrypt-${KEYCLOAK_BCRYPT_VERSION}.jar > ${KEYCLOAK_HOME}/standalone/deployments/keycloak-bcrypt-${KEYCLOAK_BCRYPT_VERSION}.jar
+curl -L https://github.com/jcschaff/keycloak-sha1/releases/download/${KEYCLOAK_SHA1_VERSION}/keycloak-sha1-${KEYCLOAK_SHA1_VERSION}.jar > ${KEYCLOAK_HOME}/standalone/deployments/keycloak-sha1-${KEYCLOAK_SHA1
+_VERSION}.jar
 ```
 You need to restart Keycloak.
 
@@ -46,7 +50,7 @@ docker run \
     -e KEYCLOAK_ADMIN=${KEYCLOAK_ADMIN} \
     -e KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD} \
     -e KC_HOSTNAME=${KC_HOSTNAME} \
-    gleroy/keycloak-bcrypt \
+    jcschaff/keycloak-sha1 \
     start
 ```
 
@@ -54,5 +58,6 @@ The image is based on [Keycloak official](https://quay.io/repository/keycloak/ke
 
 ## How to use
 Go to `Authentication` / `Policies` / `Password policy` and add hashing algorithm policy with value `bcrypt`.
+Go to `Authentication` / `Policies` / `Password policy` and add hashing algorithm policy with value `sha1`.
 
 To test if installation works, create new user and set its credentials.

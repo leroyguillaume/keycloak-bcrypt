@@ -33,4 +33,4 @@ jobs:
             keycloak_version=${{ github.event.inputs.keycloak_version }}
           context: .
           push: true
-          tags: gleroy/keycloak-bcrypt:${{ github.event.inputs.keycloak_version }}_${{ steps.version.outputs.version }},gleroy/keycloak-bcrypt:latest
+          tags: jcschaff/keycloak-sha1:${{ github.event.inputs.keycloak_version }}_${{ steps.version.outputs.version }},jcschaff/keycloak-sha1:latest
