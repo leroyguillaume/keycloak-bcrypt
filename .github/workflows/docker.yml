@@ -1,36 +1,36 @@
+name: Docker
+
 on:
   workflow_dispatch:
     inputs:
       keycloak_version:
         description: Keycloak version
         required: true
-      keycloak_bcrypt_version:
-        description: Keycloak BCrypt version
-        required: true
-        default: 1.5.1
-
-name: Docker
 
 jobs:
   docker:
     name: Docker
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Build
-        run: ./gradlew jar -Pdependency.keycloak.version=${{ github.event.inputs.keycloak_version }}
-      - run: cp build/libs/keycloak-bcrypt-${{ github.event.inputs.keycloak_bcrypt_version }}.jar docker
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - id: version
+        name: Get latest version
+        run: |
+          echo version=$(grep 'version =' build.gradle.kts | cut -d '=' -f 2 | cut -d '"' -f 2) >> $GITHUB_OUTPUT
+
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
-          context: docker
           build-args: |
             keycloak_version=${{ github.event.inputs.keycloak_version }}
-            keycloak_bcrypt_version=${{ github.event.inputs.keycloak_bcrypt_version }}
+          context: .
           push: true
-          tags: gleroy/keycloak-bcrypt:${{ github.event.inputs.keycloak_version }}_${{ github.event.inputs.keycloak_bcrypt_version }},gleroy/keycloak-bcrypt:latest
+          tags: gleroy/keycloak-bcrypt:${{ github.event.inputs.keycloak_version }}_${{ steps.version.outputs.version }},gleroy/keycloak-bcrypt:latest

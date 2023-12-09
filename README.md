@@ -11,12 +11,10 @@ Add a password hash provider to handle BCrypt passwords inside Keycloak.
 ## Build Docker image
 
 ```bash
-cp build/libs/keycloak-bcrypt-${KEYCLOAK_BCRYPT_VERSION}.jar docker
 docker build \
     --build-arg keycloak_version=${KEYCLOAK_VERSION} \
-    --build-arg keycloak_bcrypt_version=${KEYCLOAK_BCRYPT_VERSION} \
     -t gleroy/keycloak-bcrypt \
-    docker
+    .
 ```
 
 ## Test with docker-compose
@@ -55,6 +53,6 @@ docker run \
 The image is based on [Keycloak official](https://quay.io/repository/keycloak/keycloak) one.
 
 ## How to use
-Go to `Authentication` / `Password policy` and add hashing algorithm policy with value `bcrypt`.
+Go to `Authentication` / `Policies` / `Password policy` and add hashing algorithm policy with value `bcrypt`.
 
 To test if installation works, create new user and set its credentials.

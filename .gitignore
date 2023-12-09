@@ -3,7 +3,9 @@
 build
 
 # IDE
+/bin
 .idea
+.vscode
 *.iml
 
 # Maven
