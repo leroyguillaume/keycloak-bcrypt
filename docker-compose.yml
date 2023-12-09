@@ -11,7 +11,7 @@ services:
       POSTGRES_PASSWORD: keycloak
 
   keycloak:
-    image: jcschaff/keycloak-sha1
+    image: ghcr.io/jcschaff/keycloak-sha1
     environment:
       KC_DB_URL: jdbc:postgresql://db/keycloak
       KC_DB_USERNAME: keycloak

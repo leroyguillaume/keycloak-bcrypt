@@ -16,7 +16,7 @@ Add a password hash provider to handle SHA-1 passwords inside Keycloak.
 ```bash
 docker build \
     --build-arg keycloak_version=${KEYCLOAK_VERSION} \
-    -t jcschaff/keycloak-sha1 \
+    -t ghcr.io/jcschaff/keycloak-sha1 \
     .
 ```
 
@@ -50,7 +50,7 @@ docker run \
     -e KEYCLOAK_ADMIN=${KEYCLOAK_ADMIN} \
     -e KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD} \
     -e KC_HOSTNAME=${KC_HOSTNAME} \
-    jcschaff/keycloak-sha1 \
+    ghcr.io/jcschaff/keycloak-sha1 \
     start
 ```
 
