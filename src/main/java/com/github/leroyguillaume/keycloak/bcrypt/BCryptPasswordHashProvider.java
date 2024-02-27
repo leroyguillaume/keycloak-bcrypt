@@ -1,6 +1,8 @@
 package com.github.leroyguillaume.keycloak.bcrypt;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
+import at.favre.lib.crypto.bcrypt.LongPasswordStrategies;
+
 import org.keycloak.credential.hash.PasswordHashProvider;
 import org.keycloak.models.PasswordPolicy;
 import org.keycloak.models.credential.PasswordCredentialModel;
@@ -37,7 +39,12 @@ public class BCryptPasswordHashProvider implements PasswordHashProvider {
     @Override
     public String encode(final String rawPassword, final int iterations) {
         final int cost = iterations == -1 ? defaultIterations : iterations;
-        return BCrypt.with(BCrypt.Version.VERSION_2A).hashToString(cost, rawPassword.toCharArray());
+        char[] pw = rawPassword.toCharArray();
+        if (pw.length > BCrypt.Version.MAX_PW_LENGTH_BYTE - 1) {
+            return BCrypt.with(LongPasswordStrategies.hashSha512(BCrypt.Version.VERSION_2Y)).hashToString(cost, pw);
+        } else {
+            return BCrypt.with(BCrypt.Version.VERSION_2Y).hashToString(cost, rawPassword.toCharArray());
+        }
     }
 
     @Override
@@ -48,7 +55,13 @@ public class BCryptPasswordHashProvider implements PasswordHashProvider {
     @Override
     public boolean verify(final String rawPassword, final PasswordCredentialModel credential) {
         final String hash = credential.getPasswordSecretData().getValue();
-        final BCrypt.Result verifier = BCrypt.verifyer(BCrypt.Version.VERSION_2A).verify(rawPassword.toCharArray(), hash.toCharArray());
-        return verifier.verified;
+        char[] pw = rawPassword.toCharArray();
+        if (pw.length > BCrypt.Version.MAX_PW_LENGTH_BYTE - 1) {
+            final BCrypt.Result verifier = BCrypt.verifyer(BCrypt.Version.VERSION_2Y, LongPasswordStrategies.truncate(BCrypt.Version.VERSION_2Y)).verify(pw, hash);
+            return verifier.verified;
+        } else {
+            final BCrypt.Result verifier = BCrypt.verifyer(BCrypt.Version.VERSION_2Y).verify(pw, hash.toCharArray());
+            return verifier.verified;
+        }
     }
 }
