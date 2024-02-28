@@ -39,7 +39,11 @@ public class BCryptPasswordHashProvider implements PasswordHashProvider {
     @Override
     public String encode(final String rawPassword, final int iterations) {
         final int cost = iterations == -1 ? defaultIterations : iterations;
-        return BCrypt.with(LongPasswordStrategies.truncate(BCrypt.Version.VERSION_2Y_NO_NULL_TERMINATOR)).hashToString(cost, rawPassword.toCharArray());
+        try {
+            return BCrypt.with(LongPasswordStrategies.truncate(BCrypt.Version.VERSION_2Y_NO_NULL_TERMINATOR)).hashToString(cost, rawPassword.toCharArray());
+        } catch (Exception e) {
+            return BCrypt.with(LongPasswordStrategies.truncate(BCrypt.Version.VERSION_2A)).hashToString(cost, rawPassword.toCharArray());
+        }
     }
 
     @Override
@@ -51,13 +55,13 @@ public class BCryptPasswordHashProvider implements PasswordHashProvider {
     public boolean verify(final String rawPassword, final PasswordCredentialModel credential) {
         final String hash = credential.getPasswordSecretData().getValue();
         char[] pw = rawPassword.toCharArray();
-        final BCrypt.Result longPasswordVerifier = BCrypt.verifyer(BCrypt.Version.VERSION_2Y_NO_NULL_TERMINATOR, LongPasswordStrategies.truncate(BCrypt.Version.VERSION_2Y_NO_NULL_TERMINATOR)).verify(pw, hash);
-        if (longPasswordVerifier.verified) {
-            return longPasswordVerifier.verified;
+        try {
+            final BCrypt.Result verifier = BCrypt.verifyer(BCrypt.Version.VERSION_2Y_NO_NULL_TERMINATOR, LongPasswordStrategies.truncate(BCrypt.Version.VERSION_2Y_NO_NULL_TERMINATOR)).verify(pw, hash);
+            return verifier.verified;
+        } catch (Exception e) {
+            // If password is not verified (i.e. no match) verify using v2A of Blowfish algo
+            final BCrypt.Result verifier = BCrypt.verifyer(BCrypt.Version.VERSION_2A).verify(pw, hash.toCharArray());
+            return verifier.verified;
         }
-
-        // If password is not verified (i.e. no match) verify using v2A of Blowfish algo
-        final BCrypt.Result verifier = BCrypt.verifyer(BCrypt.Version.VERSION_2A).verify(pw, hash.toCharArray());
-        return verifier.verified;
     }
 }
