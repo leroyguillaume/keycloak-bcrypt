@@ -1,6 +1,8 @@
 package com.github.leroyguillaume.keycloak.bcrypt;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
+import at.favre.lib.crypto.bcrypt.LongPasswordStrategies;
+
 import org.keycloak.credential.hash.PasswordHashProvider;
 import org.keycloak.models.PasswordPolicy;
 import org.keycloak.models.credential.PasswordCredentialModel;
@@ -37,7 +39,7 @@ public class BCryptPasswordHashProvider implements PasswordHashProvider {
     @Override
     public String encode(final String rawPassword, final int iterations) {
         final int cost = iterations == -1 ? defaultIterations : iterations;
-        return BCrypt.with(BCrypt.Version.VERSION_2A).hashToString(cost, rawPassword.toCharArray());
+        return BCrypt.with(LongPasswordStrategies.truncate(BCrypt.Version.VERSION_2Y_NO_NULL_TERMINATOR)).hashToString(cost, rawPassword.toCharArray());
     }
 
     @Override
@@ -48,7 +50,14 @@ public class BCryptPasswordHashProvider implements PasswordHashProvider {
     @Override
     public boolean verify(final String rawPassword, final PasswordCredentialModel credential) {
         final String hash = credential.getPasswordSecretData().getValue();
-        final BCrypt.Result verifier = BCrypt.verifyer(BCrypt.Version.VERSION_2A).verify(rawPassword.toCharArray(), hash.toCharArray());
+        char[] pw = rawPassword.toCharArray();
+        final BCrypt.Result longPasswordVerifier = BCrypt.verifyer(BCrypt.Version.VERSION_2Y_NO_NULL_TERMINATOR, LongPasswordStrategies.truncate(BCrypt.Version.VERSION_2Y_NO_NULL_TERMINATOR)).verify(pw, hash);
+        if (longPasswordVerifier.verified) {
+            return longPasswordVerifier.verified;
+        }
+
+        // If password is not verified (i.e. no match) verify using v2A of Blowfish algo
+        final BCrypt.Result verifier = BCrypt.verifyer(BCrypt.Version.VERSION_2A).verify(pw, hash.toCharArray());
         return verifier.verified;
     }
 }
