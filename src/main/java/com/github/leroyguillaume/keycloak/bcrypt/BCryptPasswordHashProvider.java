@@ -39,7 +39,7 @@ public class BCryptPasswordHashProvider implements PasswordHashProvider {
     @Override
     public String encode(final String rawPassword, final int iterations) {
         final int cost = iterations == -1 ? defaultIterations : iterations;
-        return BCrypt.with(LongPasswordStrategies.hashSha512(BCrypt.Version.VERSION_2Y_NO_NULL_TERMINATOR)).hashToString(cost, rawPassword.toCharArray());
+        return BCrypt.with(LongPasswordStrategies.truncate(BCrypt.Version.VERSION_2Y_NO_NULL_TERMINATOR)).hashToString(cost, rawPassword.toCharArray());
     }
 
     @Override
@@ -51,7 +51,7 @@ public class BCryptPasswordHashProvider implements PasswordHashProvider {
     public boolean verify(final String rawPassword, final PasswordCredentialModel credential) {
         final String hash = credential.getPasswordSecretData().getValue();
         char[] pw = rawPassword.toCharArray();
-        final BCrypt.Result longPasswordVerifier = BCrypt.verifyer(BCrypt.Version.VERSION_2Y_NO_NULL_TERMINATOR, LongPasswordStrategies.hashSha512(BCrypt.Version.VERSION_2Y_NO_NULL_TERMINATOR)).verify(pw, hash);
+        final BCrypt.Result longPasswordVerifier = BCrypt.verifyer(BCrypt.Version.VERSION_2Y_NO_NULL_TERMINATOR, LongPasswordStrategies.truncate(BCrypt.Version.VERSION_2Y_NO_NULL_TERMINATOR)).verify(pw, hash);
         if (longPasswordVerifier.verified) {
             return longPasswordVerifier.verified;
         }
