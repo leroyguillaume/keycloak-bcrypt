@@ -31,7 +31,7 @@
           },
           {
             "name": "KC_HOSTNAME",
-            "value": "${KEYCLOAK_HOST_NAME}"
+            "value": "${KC_HOSTNAME}"
           },
           {
             "name": "KEYCLOAK_ADMIN",

@@ -63,20 +63,10 @@ jobs:
         aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws configure set default.region ${{ secrets.AWS_REGION }}
 
-    - name: Retrieve secrets from AWS Secrets Manager
-      id: secrets
+    - name: Retrieve secrets from AWS Secrets Manager and save to .env
       run: |
-        SECRET=$(aws secretsmanager get-secret-value --secret-id keycloak/production --region ${{ secrets.AWS_REGION }} --query 'SecretString' --output text)
-        echo "Raw secret: $SECRET"  # Debug output
-
-        # Parse and export secrets to GitHub Actions environment
-        echo "KC_DB_URL=$(echo "$SECRET" | grep 'KC_DB_URL' | cut -d'=' -f2)" >> $GITHUB_ENV
-        echo "KC_DB_USERNAME=$(echo "$SECRET" | grep 'KC_DB_USERNAME' | cut -d'=' -f2)" >> $GITHUB_ENV
-        echo "KC_DB_PASSWORD=$(echo "$SECRET" | grep 'KC_DB_PASSWORD' | cut -d'=' -f2)" >> $GITHUB_ENV
-        echo "KC_HOSTNAME=$(echo "$SECRET" | grep 'KC_HOSTNAME' | cut -d'=' -f2)" >> $GITHUB_ENV
-        echo "KEYCLOAK_ADMIN=$(echo "$SECRET" | grep 'KEYCLOAK_ADMIN' | cut -d'=' -f2)" >> $GITHUB_ENV
-        echo "KEYCLOAK_ADMIN_PASSWORD=$(echo "$SECRET" | grep 'KEYCLOAK_ADMIN_PASSWORD' | cut -d'=' -f2)" >> $GITHUB_ENV
-        echo "KEYCLOAK_HOST_NAME=$(echo "$SECRET" | grep 'KEYCLOAK_HOST_NAME' | cut -d'=' -f2)" >> $GITHUB_ENV
+        aws secretsmanager get-secret-value --secret-id keycloak/production
+        }} --region ${{ env.PRODUCTION_AWS_REGION }} --query SecretString --output text > .env
 
 
     - name: Deploy to Elastic Beanstalk
