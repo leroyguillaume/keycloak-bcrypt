@@ -38,10 +38,6 @@ jobs:
       run: |
         aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
 
-    - name: Log in to ECR
-      run: |
-        aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
-
     - name: Tag Docker image
       run: docker tag revdojo-keycloak:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/revdojo-keycloak:latest
 
@@ -70,7 +66,7 @@ jobs:
     - name: Retrieve secrets from AWS Secrets Manager
       id: secrets
       run: |
-        SECRET=$(aws secretsmanager get-secret-value --secret-id ${{ secrets.AWS_SECRET_MANAGER}} --query 'SecretString' --output text)
+        SECRET=$(aws secretsmanager get-secret-value --secret-id ${{ secrets.AWS_SECRET_MANAGER }} --region ${{ secrets.AWS_REGION }} --query 'SecretString' --output text)
         echo "$SECRET" | jq -r '.KEYCLOAK_DB_URL' > $GITHUB_ENV
         echo "$SECRET" | jq -r '.KEYCLOAK_DB_USERNAME' >> $GITHUB_ENV
         echo "$SECRET" | jq -r '.KEYCLOAK_DB_PASSWORD' >> $GITHUB_ENV
