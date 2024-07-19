@@ -13,3 +13,4 @@ target
 
 # Docker
 docker/*.jar
+.env
