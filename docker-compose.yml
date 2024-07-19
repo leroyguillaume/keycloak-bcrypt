@@ -12,7 +12,7 @@ services:
       - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD}
     ports:
       - 8443:8443
-      - 8080:8080
+      - 443:8080
       - 9000:9000
     volumes:
       - ./conf/server.keystore:/opt/keycloak/conf/server.keystore
