@@ -67,14 +67,16 @@ jobs:
       id: secrets
       run: |
         SECRET=$(aws secretsmanager get-secret-value --secret-id keycloak/production --region ${{ secrets.AWS_REGION }} --query 'SecretString' --output text)
-        echo "Raw secret: $SECRET" >> $GITHUB_ENV
-        echo "$SECRET" | jq '.'  # Check if jq can parse the JSON
-        echo "$SECRET" | jq -r '.KEYCLOAK_DB_URL' >> $GITHUB_ENV
-        echo "$SECRET" | jq -r '.KEYCLOAK_DB_USERNAME' >> $GITHUB_ENV
-        echo "$SECRET" | jq -r '.KEYCLOAK_DB_PASSWORD' >> $GITHUB_ENV
-        echo "$SECRET" | jq -r '.KEYCLOAK_ADMIN' >> $GITHUB_ENV
-        echo "$SECRET" | jq -r '.KEYCLOAK_ADMIN_PASSWORD' >> $GITHUB_ENV
-        echo "$SECRET" | jq -r '.KEYCLOAK_HOST_NAME' >> $GITHUB_ENV
+        echo "Raw secret: $SECRET"  # Debug output
+
+        # Parse secrets from plain text
+        echo "$SECRET" | grep 'KEYCLOAK_DB_URL' | cut -d'=' -f2 >> $GITHUB_ENV
+        echo "$SECRET" | grep 'KEYCLOAK_DB_USERNAME' | cut -d'=' -f2 >> $GITHUB_ENV
+        echo "$SECRET" | grep 'KEYCLOAK_DB_PASSWORD' | cut -d'=' -f2 >> $GITHUB_ENV
+        echo "$SECRET" | grep 'KEYCLOAK_ADMIN' | cut -d'=' -f2 >> $GITHUB_ENV
+        echo "$SECRET" | grep 'KEYCLOAK_ADMIN_PASSWORD' | cut -d'=' -f2 >> $GITHUB_ENV
+        echo "$SECRET" | grep 'KEYCLOAK_HOST_NAME' | cut -d'=' -f2 >> $GITHUB_ENV
+
 
     - name: Deploy to Elastic Beanstalk
       run: |
