@@ -59,7 +59,7 @@ jobs:
     - name: Retrieve secrets from AWS Secrets Manager
       id: secrets
       run: |
-        SECRET=$(aws secretsmanager get-secret-value --secret-id ${{ secret.AWS_SECRET_MANAGER}} --query 'SecretString' --output text)
+        SECRET=$(aws secretsmanager get-secret-value --secret-id ${{ secrets.AWS_SECRET_MANAGER}} --query 'SecretString' --output text)
         echo "$SECRET" | jq -r '.KEYCLOAK_DB_URL' > $GITHUB_ENV
         echo "$SECRET" | jq -r '.KEYCLOAK_DB_USERNAME' >> $GITHUB_ENV
         echo "$SECRET" | jq -r '.KEYCLOAK_DB_PASSWORD' >> $GITHUB_ENV
