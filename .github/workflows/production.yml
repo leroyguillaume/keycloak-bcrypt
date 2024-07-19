@@ -73,9 +73,9 @@ jobs:
           aws s3 cp ${{ env.DEPLOY_PKG_NAME }} s3://${{ secrets.S3_BUCKET_ARTIFACT }}
           aws elasticbeanstalk create-application-version \
             --application-name ${{ secrets.PRODUCTION_APP_NAME }} \
-            --version-label ${{ github.sha }} \
+            --version-label "Ver-${{ github.sha }}_${{ steps.timestamp.outputs.milliseconds_since_epoch }}" \
             --source-bundle S3Bucket="${{ secrets.S3_BUCKET_ARTIFACT }}",S3Key="${{ env.DEPLOY_PKG_NAME }}"
           aws elasticbeanstalk update-environment \
             --application-name ${{ secrets.PRODUCTION_APP_NAME }} \
             --environment-name ${{ secrets.PRODUCTION_ENV_NAME }} \
-            --version-label ${{ github.sha }}
+            --version-label "Ver-${{ github.sha }}_${{ steps.timestamp.outputs.milliseconds_since_epoch }}"
