@@ -23,7 +23,7 @@ jobs:
       run: ./gradlew assemble -Pdependency.keycloak.version=${{ secrets.KEYCLOAK_VERSION }}
 
     - name: Build Docker image
-      run: docker build -t revdojo-keycloak .
+      run: docker build --build-arg keycloak_version=${{ secrets.KEYCLOAK_VERSION }} -t revdojo-keycloak .
 
     - name: Log in to ECR
       run: |
