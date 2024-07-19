@@ -67,7 +67,9 @@ jobs:
       id: secrets
       run: |
         SECRET=$(aws secretsmanager get-secret-value --secret-id keycloak/production --region ${{ secrets.AWS_REGION }} --query 'SecretString' --output text)
-        echo "$SECRET" | jq -r '.KEYCLOAK_DB_URL' > $GITHUB_ENV
+        echo "Raw secret: $SECRET" >> $GITHUB_ENV
+        echo "$SECRET" | jq '.'  # Check if jq can parse the JSON
+        echo "$SECRET" | jq -r '.KEYCLOAK_DB_URL' >> $GITHUB_ENV
         echo "$SECRET" | jq -r '.KEYCLOAK_DB_USERNAME' >> $GITHUB_ENV
         echo "$SECRET" | jq -r '.KEYCLOAK_DB_PASSWORD' >> $GITHUB_ENV
         echo "$SECRET" | jq -r '.KEYCLOAK_ADMIN' >> $GITHUB_ENV
