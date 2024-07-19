@@ -74,6 +74,6 @@ jobs:
           --application-name ${{ secrets.PRODUCTION_APP_NAME }} \
           --environment-name ${{ secrets.PRODUCTION_ENV_NAME }} \
           --version-label ${{ github.sha }} \
-          --solution-stack-name "64bit Amazon Linux 2 v3.4.2 running Docker" \
+          --solution-stack-name ${{ secrets.AWS_STACK_NAME }} \
           --option-settings Namespace=aws:elasticbeanstalk:container:docker,OptionName=ImageRepository,Value=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/revdojo-keycloak:latest
   
