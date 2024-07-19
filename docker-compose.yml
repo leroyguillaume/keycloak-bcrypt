@@ -21,4 +21,4 @@ services:
       - ./themes:/opt/keycloak/themes
     security_opt:
       - 'label:disable'
-    command: ["start-dev", "--db=postgres"]
+    command: ["start", "--db=postgres"]
