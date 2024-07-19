@@ -68,15 +68,12 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y awscli
 
-    - name: Deploy to Elastic Beanstalk
+    - name: Update Elastic Beanstalk environment
       run: |
-        zip -r deploy.zip . -x .git/\* .github/\* node_modules/\*
-        aws s3 cp deploy.zip s3://your-s3-bucket/deploy.zip
-        aws elasticbeanstalk create-application-version \
-          --application-name your-application-name \
-          --version-label ${{ github.sha }} \
-          --source-bundle S3Bucket="your-s3-bucket",S3Key="deploy.zip"
         aws elasticbeanstalk update-environment \
-          --application-name your-application-name \
-          --environment-name your-environment-name \
-          --version-label ${{ github.sha }}
+          --application-name ${{ secrets.PRODUCTION_APP_NAME }} \
+          --environment-name ${{ secrets.PRODUCTION_ENV_NAME }} \
+          --version-label ${{ github.sha }} \
+          --solution-stack-name "64bit Amazon Linux 2 v3.4.2 running Docker" \
+          --option-settings Namespace=aws:elasticbeanstalk:container:docker,OptionName=ImageRepository,Value=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/revdojo-keycloak:latest
+  
