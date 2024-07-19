@@ -67,7 +67,7 @@ jobs:
       run: |
           aws secretsmanager get-secret-value --secret-id keycloak/production --region ${{ secrets.AWS_REGION }} --query SecretString --output text > .env
 
-    - name: Deploy to Elastic Beanstalk 
+    - name: Deploy to Elastic Beanstalk  
       run: |
         zip -r ${{ env.DEPLOY_PKG_NAME }} . -x '*.git*'
         aws s3 cp ${{ env.DEPLOY_PKG_NAME }} s3://${{ secrets.S3_BUCKET_ARTIFACT }}
