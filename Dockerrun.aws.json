@@ -1,0 +1,48 @@
+{
+    "AWSEBDockerrunVersion": 2,
+    "containerDefinitions": [
+      {
+        "name": "keycloak",
+        "image": "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/revdojo-keycloak:latest",
+        "essential": true,
+        "memory": 512,
+        "portMappings": [
+          {
+            "containerPort": 8080,
+            "hostPort": 8080
+          },
+          {
+            "containerPort": 8443,
+            "hostPort": 8443
+          }
+        ],
+        "environment": [
+          {
+            "name": "KC_DB_URL",
+            "value": "${KEYCLOAK_DB_URL}"
+          },
+          {
+            "name": "KC_DB_USERNAME",
+            "value": "${KEYCLOAK_DB_USERNAME}"
+          },
+          {
+            "name": "KC_DB_PASSWORD",
+            "value": "${KEYCLOAK_DB_PASSWORD}"
+          },
+          {
+            "name": "KC_HOSTNAME",
+            "value": "${KEYCLOAK_HOST_NAME}"
+          },
+          {
+            "name": "KEYCLOAK_ADMIN",
+            "value": "${KEYCLOAK_ADMIN}"
+          },
+          {
+            "name": "KEYCLOAK_ADMIN_PASSWORD",
+            "value": "${KEYCLOAK_ADMIN_PASSWORD}"
+          }
+        ]
+      }
+    ]
+  }
+  

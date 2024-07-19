@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - master
+env:
+  DEPLOY_PKG_NAME: "${{ github.sha }}.zip"
 
 jobs:
   build:
@@ -22,21 +24,8 @@ jobs:
     - name: Build JAR
       run: ./gradlew assemble -Pdependency.keycloak.version=${{ secrets.KEYCLOAK_VERSION }}
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v2
-
     - name: Build Docker image
       run: docker build --build-arg keycloak_version=${{ secrets.KEYCLOAK_VERSION }} -t revdojo-keycloak .
-
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v2
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
 
     - name: Log in to ECR
       run: |
@@ -56,24 +45,37 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v2
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
-
     - name: Install AWS CLI
       run: |
         sudo apt-get update
         sudo apt-get install -y awscli
 
-    - name: Update Elastic Beanstalk environment
+    - name: Configure AWS CLI
       run: |
+        aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws configure set default.region ${{ secrets.AWS_REGION }}
+
+    - name: Retrieve secrets from AWS Secrets Manager
+      id: secrets
+      run: |
+        SECRET=$(aws secretsmanager get-secret-value --secret-id ${{ secret.AWS_SECRET_MANAGER}} --query 'SecretString' --output text)
+        echo "$SECRET" | jq -r '.KEYCLOAK_DB_URL' > $GITHUB_ENV
+        echo "$SECRET" | jq -r '.KEYCLOAK_DB_USERNAME' >> $GITHUB_ENV
+        echo "$SECRET" | jq -r '.KEYCLOAK_DB_PASSWORD' >> $GITHUB_ENV
+        echo "$SECRET" | jq -r '.KEYCLOAK_ADMIN' >> $GITHUB_ENV
+        echo "$SECRET" | jq -r '.KEYCLOAK_ADMIN_PASSWORD' >> $GITHUB_ENV
+        echo "$SECRET" | jq -r '.KEYCLOAK_HOST_NAME' >> $GITHUB_ENV
+
+    - name: Deploy to Elastic Beanstalk
+      run: |
+        zip -r ${{ env.DEPLOY_PKG_NAME }} . -x '*.git*'
+        aws s3 cp ${{ env.DEPLOY_PKG_NAME }} s3://${{ secrets.S3_BUCKET_ARTIFACT }}
+        aws elasticbeanstalk create-application-version \
+          --application-name ${{ secrets.PRODUCTION_APP_NAME }} \
+          --version-label ${{ github.sha }} \
+          --source-bundle S3Bucket="${{ secrets.S3_BUCKET_ARTIFACT }}",S3Key="${{ env.DEPLOY_PKG_NAME }}"
         aws elasticbeanstalk update-environment \
           --application-name ${{ secrets.PRODUCTION_APP_NAME }} \
           --environment-name ${{ secrets.PRODUCTION_ENV_NAME }} \
-          --version-label ${{ github.sha }} \
-          --solution-stack-name ${{ secrets.AWS_STACK_NAME }} \
-          --option-settings Namespace=aws:elasticbeanstalk:container:docker,OptionName=ImageRepository,Value=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/revdojo-keycloak:latest
-  
+          --version-label ${{ github.sha }}
