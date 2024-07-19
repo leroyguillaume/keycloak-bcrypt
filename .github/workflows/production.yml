@@ -65,7 +65,7 @@ jobs:
 
     - name: Retrieve secrets from AWS Secrets Manager and save to .env
       run: |
-          aws secretsmanager get-secret-value --secret-id ${{ keycloak/production }} --region ${{ env.PRODUCTION_AWS_REGION }} --query SecretString --output text > .env
+          aws secretsmanager get-secret-value --secret-id keycloak/production --region ${{ env.PRODUCTION_AWS_REGION }} --query SecretString --output text > .env
 
     - name: Deploy to Elastic Beanstalk
       run: |
