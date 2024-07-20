@@ -14,7 +14,7 @@ services:
       - KC_HOSTNAME_STRICT=false
     ports:
       - 80:8443
-      - 8080:8080
+      - 80:8080
       - 9000:9000
     volumes:
       - ./conf/server.keystore:/opt/keycloak/conf/server.keystore
