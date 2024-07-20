@@ -13,8 +13,8 @@ services:
       - KC_HTTP_ENABLED=true
       - KC_HOSTNAME_STRICT=false
     ports:
-      - 8443:8443
-      - 80:8080
+      - 80:8443
+      - 8080:8080
       - 9000:9000
     volumes:
       - ./conf/server.keystore:/opt/keycloak/conf/server.keystore
