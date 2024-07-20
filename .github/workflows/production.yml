@@ -67,6 +67,12 @@ jobs:
         run: |
           aws secretsmanager get-secret-value --secret-id keycloak/production --region ${{ secrets.AWS_REGION }} --query SecretString --output text > .env
 
+      - name: Get Current Date
+        id: timestamp
+        uses: Kaven-Universe/github-action-current-date-time@v1
+        with:
+          format: "yyyy-MM-dd"
+          
       - name: Deploy to Elastic Beanstalk
         run: |
           zip -r ${{ env.DEPLOY_PKG_NAME }} . -x '*.git*'
