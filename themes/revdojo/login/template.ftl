@@ -286,6 +286,13 @@
             display: block;
         }
         </style>
+        <script type="module">
+        import { checkCookiesAndSetTimer } from "${url.resourcesPath}/js/authChecker.js";
+
+        checkCookiesAndSetTimer(
+            "${url.ssoLoginInOtherTabsUrl?no_esc}"
+        );
+    </script>
     </head>
 
     <body>
