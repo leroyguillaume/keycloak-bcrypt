@@ -14,11 +14,11 @@ services:
       - KC_HOSTNAME_STRICT=${KC_HOSTNAME_STRICT}
     ports:
       - 8443:8443
-      - 80:8080
+      - 8080:8080
       - 9000:9000
     volumes:
       - ./conf/server.keystore:/opt/keycloak/conf/server.keystore
       - ./themes:/opt/keycloak/themes
     security_opt:
       - 'label:disable'
-    command: ["start", "--db=postgres"]
+    command: ["start-dev", "--db=postgres"]

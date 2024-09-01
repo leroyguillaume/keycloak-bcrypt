@@ -31,13 +31,59 @@
                         </div>
                     </#if>
                     <div class="login-card__content">
-                        <form action="${url.loginAction}" method="post">
+                        <form id="resetPasswordForm" action="${url.loginAction}" method="post">
                             <input type="email" id="username" class="login-card__input" placeholder="Email" name="username" tabindex="1">
+                            <div id="email-error" class="error-message" style="display: none; color: red; margin-bottom: 20px;"></div>
                             <button type="submit" class="login-card__button">Send Reset Link</button>
                             <button class="sign-up-card__button" onclick="window.location.href = '${client.baseUrl}'; return false;" formnovalidate>Go back to Login</button>
                         </form>
                     </div>
                 </div>
             </div>
+            <script>
+            document.getElementById('resetPasswordForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+                const emailField = document.getElementById('username');
+                const emailError = document.getElementById('email-error');
+                const email = emailField.value;
+
+                // Clear any previous error message
+                emailError.style.display = 'none';
+                emailError.textContent = '';
+
+                // Check if the email is valid (simple regex check)
+                if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+                    emailError.textContent = 'Please enter a valid email address.';
+                    emailError.style.display = 'block';
+                    return;
+                }
+
+                // Make an AJAX request to check if the email exists
+                fetch('https://central-staging.webinarinc.com/api/verify-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email: email })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data)
+                    if (data.exists) {
+                        // If email exists, submit the form
+                        document.getElementById('resetPasswordForm').submit();
+                    } else {
+                        // If email does not exist, show an error message
+                        emailError.textContent = 'This email does not exist.';
+                        emailError.style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking email:', error);
+                    emailError.textContent = 'An error occurred while checking the email. Please try again later.';
+                    emailError.style.display = 'block';
+                });
+            });
+            </script>
         </#if>
     </@layout.registrationLayout>

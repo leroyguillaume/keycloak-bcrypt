@@ -285,6 +285,9 @@
             margin: 20px auto;
             display: block;
         }
+        .login-content {
+            width:400px;
+        }
         </style>
         <script type="module">
         import { checkCookiesAndSetTimer } from "${url.resourcesPath}/js/authChecker.js";
