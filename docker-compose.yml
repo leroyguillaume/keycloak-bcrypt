@@ -25,5 +25,5 @@ services:
       - ./conf/server.keystore:/opt/keycloak/conf/server.keystore
     security_opt:
       - 'label:disable'
-    command: ["start", "--auto-build", "--db=postgres"]
+    command: ["start", "--db=postgres"]
     depends_on: [db]
