@@ -39,7 +39,10 @@ jobs:
           aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
 
       - name: Tag Docker image
-        run: docker tag revdojo-keycloak:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/revdojo-keycloak:latest
+        run: |
+          SHORT_COMMIT=$(git rev-parse --short HEAD)
+          docker tag keycloak:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/keycloak:$SHORT_COMMIT
+          docker tag revdojo-keycloak:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/revdojo-keycloak:latest
 
       - name: Push Docker image to ECR
         run: docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/revdojo-keycloak:latest
@@ -72,7 +75,7 @@ jobs:
         uses: Kaven-Universe/github-action-current-date-time@v1
         with:
           format: "yyyy-MM-dd"
-          
+
       - name: Deploy to Elastic Beanstalk
         run: |
           zip -r ${{ env.DEPLOY_PKG_NAME }} . -x '*.git*'
