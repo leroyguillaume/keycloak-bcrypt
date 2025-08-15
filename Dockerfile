@@ -1,4 +1,4 @@
-ARG gradle_version=jdk17
+ARG gradle_version=jdk21
 ARG keycloak_version
 
 FROM gradle:${gradle_version} as build
