@@ -48,6 +48,11 @@ public class BCryptPasswordHashProvider implements PasswordHashProvider {
     @Override
     public boolean verify(final String rawPassword, final PasswordCredentialModel credential) {
         final String hash = credential.getPasswordSecretData().getValue();
+
+        if (hash == null || hash.isEmpty()) {
+            return false;
+        }
+
         final BCrypt.Result verifier = BCrypt.verifyer(BCrypt.Version.VERSION_2A).verify(rawPassword.toCharArray(), hash.toCharArray());
         return verifier.verified;
     }

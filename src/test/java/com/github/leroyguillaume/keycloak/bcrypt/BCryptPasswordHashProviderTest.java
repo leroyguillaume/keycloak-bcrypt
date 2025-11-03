@@ -21,4 +21,22 @@ class BCryptPasswordHashProviderTest {
         assertNotNull(hashedPassword);
         assertTrue(provider.verify(rawPassword, model));
     }
+
+    @Test
+    @DisplayName("Should return false when hash is null")
+    void shouldReturnFalseWhenHashIsNull() {
+        String rawPassword = "test";
+        PasswordCredentialModel model = PasswordCredentialModel.createFromValues(id, new byte[0], iterations, null);
+
+        assertFalse(provider.verify(rawPassword, model));
+    }
+
+    @Test
+    @DisplayName("Should return false when hash is empty")
+    void shouldReturnFalseWhenHashIsEmpty() {
+        String rawPassword = "test";
+        PasswordCredentialModel model = PasswordCredentialModel.createFromValues(id, new byte[0], iterations, "");
+
+        assertFalse(provider.verify(rawPassword, model));
+    }
 }
