@@ -3,6 +3,10 @@ name: Docker
 on:
   workflow_dispatch:
     inputs:
+      jdk_version:
+        description: JDK version
+        required: true
+        default: '21'
       keycloak_version:
         description: Keycloak version
         required: true
@@ -30,6 +34,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           build-args: |
+            gradle_version=jdk${{ github.event.inputs.jdk_version }}
             keycloak_version=${{ github.event.inputs.keycloak_version }}
           context: .
           push: true
