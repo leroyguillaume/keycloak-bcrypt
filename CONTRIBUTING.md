@@ -84,7 +84,7 @@ pre-commit run <hook-id> --all-files
 | [`quality.yaml`](.github/workflows/quality.yaml) | quality gate: hooks, unit tests, integration tests on the oldest supported and the latest Keycloak | `task lint`, `task test`, `task test:integration` |
 | [`security.yaml`](.github/workflows/security.yaml) | Trivy scan of the locked dependencies, and daily of the published image | `trivy fs .` |
 | [`build.yaml`](.github/workflows/build.yaml) | multi-arch image build and Trivy scan; pushes only when run by hand with `push`, or by a release | `task build` then `docker build .` |
-| [`release.yaml`](.github/workflows/release.yaml) | on a `v*` tag: the image, then the GitHub release with the attested jar and its SBOM | — |
+| [`release.yaml`](.github/workflows/release.yaml) | on a `v*` tag: the image, and independently the GitHub release with the attested jar and its SBOM | — |
 | [`scorecard.yaml`](.github/workflows/scorecard.yaml) | OpenSSF Scorecard grade of the repository | — |
 | [`renovate.yaml`](.github/workflows/renovate.yaml) | daily dependency update pull requests, configured in [`renovate.json`](renovate.json) | `dryRun` input on a manual run |
 
