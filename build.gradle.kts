@@ -36,6 +36,7 @@ dependencies {
     // JUnit
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.8.2")
 }
 
 tasks {
@@ -49,7 +50,7 @@ tasks {
     }
 
     wrapper {
-        gradleVersion = "9.2"
+        gradleVersion = "9.9.2"
     }
 
     test {
