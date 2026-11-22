@@ -1,59 +1,80 @@
 plugins {
     java
+    alias(libs.plugins.shadow)
+    alias(libs.plugins.spotless)
 }
 
 group = "com.github.leroyguillaume"
 version = "1.7.0"
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
 
 repositories {
     mavenCentral()
 }
 
 configurations {
-    testImplementation.get().apply {
-        extendsFrom(configurations.compileOnly.get())
+    testImplementation {
+        extendsFrom(compileOnly.get())
     }
 }
 
 dependencies {
-    val bcryptVersion = "0.10.2"
-    val jbossLoggingVersion = "3.4.1.Final"
-    val keycloakVersion = project.property("dependency.keycloak.version")
-    val junitVersion = "5.8.2"
+    implementation(libs.bcrypt)
 
-    // BCrypt
-    implementation("at.favre.lib:bcrypt:$bcryptVersion")
+    compileOnly(libs.keycloak.core)
+    compileOnly(libs.keycloak.server.spi)
+    compileOnly(libs.keycloak.server.spi.private)
 
-    // JBoss
-    compileOnly("org.jboss.logging:jboss-logging:$jbossLoggingVersion")
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.jupiter)
+    testRuntimeOnly(libs.jboss.logging)
+    testRuntimeOnly(libs.junit.platform.launcher)
+}
 
-    // Keycloak
-    compileOnly("org.keycloak:keycloak-common:$keycloakVersion")
-    compileOnly("org.keycloak:keycloak-core:$keycloakVersion")
-    compileOnly("org.keycloak:keycloak-server-spi:$keycloakVersion")
-    compileOnly("org.keycloak:keycloak-server-spi-private:$keycloakVersion")
-
-    // JUnit
-    testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.8.2")
+spotless {
+    java {
+        palantirJavaFormat(
+            libs.versions.palantir.java.format
+                .get(),
+        )
+        removeUnusedImports()
+    }
+    kotlinGradle {
+        ktlint()
+    }
 }
 
 tasks {
-    jar {
-        from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) }) {
-            exclude("META-INF/MANIFEST.MF")
-            exclude("META-INF/*.SF")
-            exclude("META-INF/*.DSA")
-            exclude("META-INF/*.RSA")
-        }
+    withType<JavaCompile>().configureEach {
+        options.compilerArgs.addAll(listOf("-Xlint:all", "-Werror"))
     }
 
-    wrapper {
-        gradleVersion = "9.9.2"
+    jar {
+        enabled = false
+    }
+
+    shadowJar {
+        archiveClassifier = ""
+        // Keycloak loads every provider jar into one classpath: relocating keeps our bcrypt copy
+        // from clashing with another extension that bundles a different version.
+        relocate("at.favre.lib", "com.github.leroyguillaume.keycloak.bcrypt.shaded.at.favre.lib")
+        mergeServiceFiles()
+    }
+
+    assemble {
+        dependsOn(shadowJar)
     }
 
     test {
         useJUnitPlatform()
+    }
+
+    wrapper {
+        gradleVersion = "9.9.2"
     }
 }

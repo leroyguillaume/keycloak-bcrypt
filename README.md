@@ -5,7 +5,7 @@ Add a password hash provider to handle BCrypt passwords inside Keycloak.
 ## Build JAR
 
 ```bash
-./gradlew assemble -Pdependency.keycloak.version=${KEYCLOAK_VERSION}
+./gradlew assemble
 ```
 
 ## Build Docker image

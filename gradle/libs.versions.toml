@@ -1,0 +1,21 @@
+[versions]
+bcrypt = "0.10.2"
+jboss-logging = "3.6.3.Final"
+junit = "6.1.3"
+# Oldest Keycloak release the provider supports; it compiles against this API and is tested up to the latest.
+keycloak = "26.0.8"
+palantir-java-format = "2.103.0"
+
+[libraries]
+bcrypt = { module = "at.favre.lib:bcrypt", version.ref = "bcrypt" }
+jboss-logging = { module = "org.jboss.logging:jboss-logging", version.ref = "jboss-logging" }
+junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+keycloak-core = { module = "org.keycloak:keycloak-core", version.ref = "keycloak" }
+keycloak-server-spi = { module = "org.keycloak:keycloak-server-spi", version.ref = "keycloak" }
+keycloak-server-spi-private = { module = "org.keycloak:keycloak-server-spi-private", version.ref = "keycloak" }
+
+[plugins]
+shadow = { id = "com.gradleup.shadow", version = "9.6.1" }
+spotless = { id = "com.diffplug.spotless", version = "8.12.0" }

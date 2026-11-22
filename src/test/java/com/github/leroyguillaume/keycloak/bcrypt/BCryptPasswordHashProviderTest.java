@@ -1,12 +1,12 @@
 package com.github.leroyguillaume.keycloak.bcrypt;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import at.favre.lib.crypto.bcrypt.BCrypt;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.keycloak.models.PasswordPolicy;
 import org.keycloak.models.credential.PasswordCredentialModel;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class BCryptPasswordHashProviderTest {
     private final int iterations = 10;
@@ -17,10 +17,9 @@ class BCryptPasswordHashProviderTest {
     @DisplayName("Should hash the password successfully")
     void shouldHashThePasswordSuccessfully() {
         String rawPassword = "test";
-        String hashedPassword = provider.encode(rawPassword, iterations);
-        PasswordCredentialModel model = PasswordCredentialModel.createFromValues(id, new byte[0], iterations, hashedPassword);
+        PasswordCredentialModel model = provider.encodedCredential(rawPassword, iterations);
 
-        assertNotNull(hashedPassword);
+        assertTrue(model.getPasswordSecretData().getValue().startsWith("$2a$10$"));
         assertTrue(provider.verify(rawPassword, model));
     }
 
@@ -70,7 +69,11 @@ class BCryptPasswordHashProviderTest {
     @Test
     @DisplayName("Should not require a rehash for credentials stored with unset iterations")
     void shouldNotRequireARehashForCredentialsStoredWithUnsetIterations() {
-        PasswordCredentialModel model = PasswordCredentialModel.createFromValues(id, new byte[0], -1, provider.encode("test", -1));
+        PasswordCredentialModel model = PasswordCredentialModel.createFromValues(
+                id,
+                new byte[0],
+                -1,
+                provider.encodedCredential("test", -1).getPasswordSecretData().getValue());
 
         assertTrue(provider.policyCheck(PasswordPolicy.empty(), model));
         assertTrue(provider.policyCheck(iterations, model));
@@ -87,7 +90,8 @@ class BCryptPasswordHashProviderTest {
     @Test
     @DisplayName("Should require a rehash when the algorithm differs")
     void shouldRequireARehashWhenTheAlgorithmDiffers() {
-        PasswordCredentialModel model = PasswordCredentialModel.createFromValues("pbkdf2-sha256", new byte[0], iterations, "hash");
+        PasswordCredentialModel model =
+                PasswordCredentialModel.createFromValues("pbkdf2-sha256", new byte[0], iterations, "hash");
 
         assertFalse(provider.policyCheck(iterations, model));
     }
