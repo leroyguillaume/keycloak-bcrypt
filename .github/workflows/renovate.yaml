@@ -1,0 +1,45 @@
+name: renovate
+
+on:
+  schedule:
+    - cron: "41 5 * * *"
+  workflow_dispatch:
+    inputs:
+      dryRun:
+        description: Stop after this stage, without opening or updating pull requests
+        type: choice
+        default: "off"
+        options:
+          - "off"
+          - extract
+          - lookup
+          - full
+      logLevel:
+        description: Renovate log level
+        type: choice
+        default: info
+        options:
+          - info
+          - debug
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  renovate:
+    name: renovate
+    runs-on: ubuntu-24.04
+    steps:
+      - name: run Renovate
+        uses: renovatebot/github-action@acdd6bda8b035c99ce59d5675816af2aa65a1774 # v46.3.14
+        env:
+          LOG_LEVEL: ${{ inputs.logLevel || 'info' }}
+          RENOVATE_ALLOWED_UNSAFE_EXECUTIONS: gradleWrapper,mise
+          RENOVATE_DRY_RUN: ${{ inputs.dryRun != 'off' && inputs.dryRun || '' }}
+          RENOVATE_REPOSITORIES: ${{ github.repository }}
+        with:
+          token: ${{ secrets.RENOVATE_TOKEN }}

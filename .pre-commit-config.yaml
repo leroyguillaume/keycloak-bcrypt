@@ -27,6 +27,29 @@ repos:
     hooks:
       - id: check-taskfile
 
+  - repo: https://github.com/hadolint/hadolint
+    rev: 2eece55955ced00200be9729e9728cb7dacca505  # frozen: v2.15.1
+    hooks:
+      - id: hadolint
+
+  - repo: https://github.com/rhysd/actionlint
+    rev: 914e7df21a07ef503a81201c76d2b11c789d3fca  # frozen: v1.7.12
+    hooks:
+      - id: actionlint-system
+
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: 745eface02aef23e168a8afb6b5737818efbea95  # frozen: v0.11.0.1
+    hooks:
+      - id: shellcheck
+
+  - repo: https://github.com/renovatebot/pre-commit-hooks
+    rev: 3565c66f2d58f34041a13ebc6d4132c008e52a74  # frozen: 44.257.9
+    hooks:
+      - id: renovate-config-validator
+        args:
+          - --strict
+          - --no-global
+
   - repo: local
     hooks:
       - id: no-co-authors
@@ -43,6 +66,12 @@ repos:
         language: system
         files: ^mise\.toml$
         pass_filenames: false
+      - id: trivy-dockerfile
+        name: trivy config (Dockerfile)
+        entry: trivy config --exit-code 1 Dockerfile
+        language: system
+        pass_filenames: false
+        files: ^Dockerfile$
       - id: spotless
         name: spotless (palantir-java-format, ktlint)
         entry: ./gradlew spotlessApply --quiet

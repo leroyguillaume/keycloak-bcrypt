@@ -37,6 +37,11 @@ tasks:
     cmds:
       - ./gradlew integrationTest {{.CLI_ARGS}}
 
+  lock:
+    desc: Rewrite gradle.lockfile after a dependency change
+    cmds:
+      - ./gradlew dependencies --write-locks
+
   build:
     desc: Build the provider jar into build/libs
     cmds:
@@ -45,4 +50,11 @@ tasks:
   run:
     desc: Build the image and start Keycloak with the provider on http://localhost:8080
     cmds:
+      - task: build
       - docker compose up --build
+
+  release:
+    desc: Bump, commit and tag a release, then ask before pushing
+    interactive: true
+    cmds:
+      - scripts/release.sh {{.CLI_ARGS}}

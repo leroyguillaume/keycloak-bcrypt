@@ -1,9 +1,12 @@
 min_version = "2026.11.10"
 
 [tools]
+actionlint = "1.7.12"
+hadolint = "2.15.1"
 java = "temurin-21.0.13.1+2.0.LTS"
 pre-commit = "4.7.0"
 task = "3.54.0"
+trivy = "0.76.2"
 
 [settings]
 lockfile = true

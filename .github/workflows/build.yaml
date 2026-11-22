@@ -1,0 +1,329 @@
+name: build
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - src/main/**
+      - build.gradle.kts
+      - settings.gradle.kts
+      - gradle.lockfile
+      - gradle/**
+      - Dockerfile
+      - .dockerignore
+      - .github/workflows/build.yaml
+  pull_request:
+    paths:
+      - src/main/**
+      - build.gradle.kts
+      - settings.gradle.kts
+      - gradle.lockfile
+      - gradle/**
+      - Dockerfile
+      - .dockerignore
+      - .github/workflows/build.yaml
+  workflow_dispatch:
+    inputs:
+      push:
+        description: Push the image to Docker Hub and GHCR
+        type: boolean
+        default: false
+      keycloak_version:
+        description: Keycloak release to base the image on, empty for the one the Dockerfile pins
+        type: string
+        default: ""
+  workflow_call:
+    inputs:
+      push:
+        type: boolean
+        default: false
+      version:
+        description: Release version, from the tag
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOCKERHUB_IMAGE: docker.io/gleroy/keycloak-bcrypt
+  GHCR_IMAGE: ghcr.io/leroyguillaume/keycloak-bcrypt
+
+jobs:
+  jar:
+    name: jar
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: install the tools
+        uses: jdx/mise-action@924e7c586e33d7d4bae9c14e26c5d22e2beb6e78 # v5.3.0
+        with:
+          cache: false
+
+      - name: read the provider version
+        id: version
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: |
+          version="${RELEASE_VERSION:-$(sed -n 's/^version = "\(.*\)"$/\1/p' build.gradle.kts)}"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+
+      - name: build the jar
+        run: task build
+
+      - name: keep the jar for the image jobs
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: provider-jar
+          path: build/libs/keycloak-bcrypt-*.jar
+          if-no-files-found: error
+          retention-days: 1
+
+  image:
+    name: image (${{ matrix.arch }})
+    needs:
+      - jar
+    runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: read
+      packages: write
+      security-events: write
+    strategy:
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-24.04
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    steps:
+      - name: check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: fetch the jar
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: provider-jar
+          path: build/libs
+
+      - name: pick the Keycloak base image
+        id: base
+        env:
+          KEYCLOAK_VERSION: ${{ inputs.keycloak_version }}
+        run: |
+          if [ -n "$KEYCLOAK_VERSION" ]; then
+            echo "image=quay.io/keycloak/keycloak:${KEYCLOAK_VERSION}" >> "$GITHUB_OUTPUT"
+          else
+            echo "image=$(sed -n 's/^ARG KEYCLOAK_IMAGE=//p' Dockerfile)" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: set up Docker Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      - name: compute the image labels
+        id: meta
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        with:
+          images: |
+            ${{ env.DOCKERHUB_IMAGE }}
+            ${{ env.GHCR_IMAGE }}
+
+      - name: build the image for scanning
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          platforms: linux/${{ matrix.arch }}
+          build-args: |
+            KEYCLOAK_IMAGE=${{ steps.base.outputs.image }}
+          labels: ${{ steps.meta.outputs.labels }}
+          tags: keycloak-bcrypt:scan
+          load: true
+          cache-from: type=gha,scope=${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.arch }}
+
+      - name: fail on fixable high and critical vulnerabilities
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: keycloak-bcrypt:scan
+          exit-code: "1"
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          cache: true
+
+      - name: report every vulnerability
+        if: always()
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: keycloak-bcrypt:scan
+          format: sarif
+          output: trivy-image.sarif
+          cache: true
+
+      - name: upload the report to code scanning
+        if: >-
+          always() && (github.event_name != 'pull_request'
+          || github.event.pull_request.head.repo.full_name == github.repository)
+        uses: github/codeql-action/upload-sarif@1bd86f2fdb4b86187fa4059f16f31a3202acc9ea # v4.39.4
+        with:
+          sarif_file: trivy-image.sarif
+          category: trivy-image-${{ matrix.arch }}
+
+      - name: log in to Docker Hub
+        if: inputs.push
+        uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: log in to GHCR
+        if: inputs.push
+        uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: push the scanned image by digest
+        id: push
+        if: inputs.push
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          platforms: linux/${{ matrix.arch }}
+          build-args: |
+            KEYCLOAK_IMAGE=${{ steps.base.outputs.image }}
+          labels: ${{ steps.meta.outputs.labels }}
+          outputs: type=image,"name=${{ env.DOCKERHUB_IMAGE }},${{ env.GHCR_IMAGE }}",push-by-digest=true,name-canonical=true,push=true
+          cache-from: type=gha,scope=${{ matrix.arch }}
+
+      - name: record the digest
+        if: inputs.push
+        env:
+          DIGEST: ${{ steps.push.outputs.digest }}
+        run: |
+          mkdir -p "${RUNNER_TEMP}/digests"
+          touch "${RUNNER_TEMP}/digests/${DIGEST#sha256:}"
+
+      - name: keep the digest for the manifest job
+        if: inputs.push
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: digest-${{ matrix.arch }}
+          path: ${{ runner.temp }}/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  manifest:
+    name: manifest
+    if: inputs.push
+    needs:
+      - jar
+      - image
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+      artifact-metadata: write
+    steps:
+      - name: check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: fetch the digests
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: digest-*
+          path: ${{ runner.temp }}/digests
+          merge-multiple: true
+
+      - name: read the Keycloak version
+        id: keycloak
+        env:
+          KEYCLOAK_VERSION: ${{ inputs.keycloak_version }}
+        run: |
+          if [ -n "$KEYCLOAK_VERSION" ]; then
+            echo "version=${KEYCLOAK_VERSION}" >> "$GITHUB_OUTPUT"
+            echo "default=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=$(sed -n 's/^ARG KEYCLOAK_IMAGE=[^:]*:\([^@]*\).*$/\1/p' Dockerfile)" >> "$GITHUB_OUTPUT"
+            echo "default=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: set up Docker Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      - name: compute the image tags
+        id: meta
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        with:
+          images: |
+            ${{ env.DOCKERHUB_IMAGE }}
+            ${{ env.GHCR_IMAGE }}
+          flavor: |
+            latest=false
+          tags: |
+            type=raw,value=${{ steps.keycloak.outputs.version }}_${{ needs.jar.outputs.version }}
+            type=raw,value=${{ needs.jar.outputs.version }},enable=${{ steps.keycloak.outputs.default }}
+            type=raw,value=latest,enable=${{ steps.keycloak.outputs.default == 'true' && inputs.version != '' && !contains(inputs.version, '-') }}
+
+      - name: log in to Docker Hub
+        uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: log in to GHCR
+        uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: create the multi-arch manifests
+        id: digest
+        env:
+          VERSION_TAG: ${{ steps.keycloak.outputs.version }}_${{ needs.jar.outputs.version }}
+        run: |
+          for image in "$DOCKERHUB_IMAGE" "$GHCR_IMAGE"; do
+            mapfile -t tags < <(jq -r --arg image "$image" '.tags[] | select(startswith($image + ":")) | "--tag=" + .' <<< "$DOCKER_METADATA_OUTPUT_JSON")
+            sources=()
+            for digest in "${RUNNER_TEMP}"/digests/*; do
+              sources+=("${image}@sha256:$(basename "$digest")")
+            done
+            docker buildx imagetools create "${tags[@]}" "${sources[@]}"
+          done
+          for registry in dockerhub ghcr; do
+            image="$DOCKERHUB_IMAGE"
+            [ "$registry" = ghcr ] && image="$GHCR_IMAGE"
+            digest="$(docker buildx imagetools inspect "${image}:${VERSION_TAG}" --format '{{json .Manifest}}' | jq -r .digest)"
+            echo "${registry}=${digest}" >> "$GITHUB_OUTPUT"
+          done
+
+      - name: attest the Docker Hub image
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-name: ${{ env.DOCKERHUB_IMAGE }}
+          subject-digest: ${{ steps.digest.outputs.dockerhub }}
+          push-to-registry: true
+
+      - name: attest the GHCR image
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-name: ${{ env.GHCR_IMAGE }}
+          subject-digest: ${{ steps.digest.outputs.ghcr }}
+          push-to-registry: true

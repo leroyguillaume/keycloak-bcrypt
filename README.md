@@ -1,5 +1,7 @@
 # Keycloak BCrypt
 
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/leroyguillaume/keycloak-bcrypt/badge)](https://scorecard.dev/viewer/?uri=github.com/leroyguillaume/keycloak-bcrypt)
+
 A Keycloak password hash provider that stores and verifies passwords with bcrypt.
 
 ## Description
@@ -26,17 +28,29 @@ Download the provider into Keycloak's `providers` directory:
 curl -L -o /opt/keycloak/providers/keycloak-bcrypt-1.7.0.jar https://github.com/leroyguillaume/keycloak-bcrypt/releases/download/v1.7.0/keycloak-bcrypt-1.7.0.jar
 ```
 
+Check that this repository's release workflow built it:
+
+```bash
+gh attestation verify /opt/keycloak/providers/keycloak-bcrypt-1.7.0.jar --repo leroyguillaume/keycloak-bcrypt
+```
+
 Then restart Keycloak. A server started with `--optimized` needs a build first:
 
 ```bash
 /opt/keycloak/bin/kc.sh build
 ```
 
-Or use the image: the [official Keycloak image](https://quay.io/repository/keycloak/keycloak) with the provider added, tagged `<keycloak version>_<provider version>`:
+Or use the image: the [official Keycloak image](https://quay.io/repository/keycloak/keycloak) with the provider added, for `amd64` and `arm64`, on Docker Hub (`gleroy/keycloak-bcrypt`) and GHCR (`ghcr.io/leroyguillaume/keycloak-bcrypt`). It is tagged `<keycloak version>_<provider version>`, and `latest` follows the latest release:
 
 ```bash
 docker run -p 8080:8080 -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=change-me gleroy/keycloak-bcrypt:26.5.2_1.7.0 start-dev
 ```
+
+```bash
+gh attestation verify oci://docker.io/gleroy/keycloak-bcrypt:26.5.2_1.7.0 --repo leroyguillaume/keycloak-bcrypt
+```
+
+The image enables Keycloak's health endpoints on the management port, 9000, which its `HEALTHCHECK` probes.
 
 ### Configuration
 
@@ -90,10 +104,10 @@ JSON
 
 Alice then logs in with `password`, the password behind that hash.
 
-To try it locally, build the image from this repository and start Keycloak with bcrypt as the default algorithm on <http://localhost:8080> (admin / admin):
+To try it locally, build the jar and the image from this repository, and start Keycloak with bcrypt as the default algorithm on <http://localhost:8080> (admin / admin):
 
 ```bash
-docker compose up --build
+task run
 ```
 
 ## Contributing

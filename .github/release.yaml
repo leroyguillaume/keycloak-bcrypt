@@ -1,0 +1,35 @@
+changelog:
+  exclude:
+    labels:
+      - ignore-for-release
+  categories:
+    - title: Breaking changes
+      labels:
+        - breaking
+    - title: Security
+      labels:
+        - security
+    - title: Deprecations
+      labels:
+        - deprecation
+    - title: Features
+      labels:
+        - feature
+    - title: Performance
+      labels:
+        - performance
+    - title: Fixes
+      labels:
+        - fix
+    - title: Documentation
+      labels:
+        - documentation
+    - title: Dependencies
+      labels:
+        - dependencies
+    - title: Maintenance
+      labels:
+        - chore
+    - title: Other changes
+      labels:
+        - "*"

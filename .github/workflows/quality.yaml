@@ -1,0 +1,80 @@
+name: quality
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-24.04
+    steps:
+      - name: check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: install the tools
+        uses: jdx/mise-action@924e7c586e33d7d4bae9c14e26c5d22e2beb6e78 # v5.3.0
+        with:
+          cache: false
+
+      - name: run the pre-commit hooks
+        run: task lint
+
+  test:
+    name: test
+    runs-on: ubuntu-24.04
+    steps:
+      - name: check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: install the tools
+        uses: jdx/mise-action@924e7c586e33d7d4bae9c14e26c5d22e2beb6e78 # v5.3.0
+        with:
+          cache: false
+
+      - name: run the unit tests
+        run: task test
+
+  integration:
+    name: integration (${{ matrix.keycloak }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        keycloak:
+          - oldest supported
+          - latest
+    steps:
+      - name: check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: install the tools
+        uses: jdx/mise-action@924e7c586e33d7d4bae9c14e26c5d22e2beb6e78 # v5.3.0
+        with:
+          cache: false
+
+      - name: run the integration tests
+        env:
+          KEYCLOAK: ${{ matrix.keycloak }}
+        run: |
+          if [ "$KEYCLOAK" = latest ]; then
+            task test:integration
+          else
+            version="$(sed -n 's/^keycloak = "\(.*\)"$/\1/p' gradle/libs.versions.toml)"
+            task test:integration -- "-PkeycloakImage=quay.io/keycloak/keycloak:${version}"
+          fi

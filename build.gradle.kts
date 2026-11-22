@@ -17,6 +17,10 @@ repositories {
     mavenCentral()
 }
 
+dependencyLocking {
+    lockAllConfigurations()
+}
+
 configurations {
     testImplementation {
         extendsFrom(compileOnly.get())
