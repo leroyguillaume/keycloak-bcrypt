@@ -1,6 +1,6 @@
 # Keycloak BCrypt
 
-[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/leroyguillaume/keycloak-bcrypt/badge)](https://scorecard.dev/viewer/?uri=github.com/leroyguillaume/keycloak-bcrypt)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/leroyguillaume/keycloak-bcrypt/badge)](https://scorecard.dev/viewer/?uri=github.com/leroyguillaume/keycloak-bcrypt) [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/17006/badge)](https://www.bestpractices.dev/projects/17006)
 
 A Keycloak password hash provider that stores and verifies passwords with bcrypt.
 
