@@ -30,10 +30,42 @@ dependencies {
     compileOnly(libs.keycloak.server.spi)
     compileOnly(libs.keycloak.server.spi.private)
 
-    testImplementation(platform(libs.junit.bom))
-    testImplementation(libs.junit.jupiter)
     testRuntimeOnly(libs.jboss.logging)
-    testRuntimeOnly(libs.junit.platform.launcher)
+}
+
+testing {
+    suites {
+        named<JvmTestSuite>("test") {
+            useJUnitJupiter(libs.versions.junit)
+        }
+
+        register<JvmTestSuite>("integrationTest") {
+            useJUnitJupiter(libs.versions.junit)
+
+            dependencies {
+                implementation(libs.testcontainers.keycloak)
+                runtimeOnly(libs.slf4j.simple)
+            }
+
+            targets.all {
+                testTask.configure {
+                    description = "Runs the provider inside Keycloak containers (needs Docker)."
+                    shouldRunAfter(tasks.test)
+
+                    val providerJar = tasks.shadowJar.flatMap { it.archiveFile }
+                    val keycloakImage = providers.gradleProperty("keycloakImage")
+                    inputs.file(providerJar)
+                    inputs.property("keycloakImage", keycloakImage)
+                    jvmArgumentProviders.add {
+                        listOf(
+                            "-Dprovider.jar=${providerJar.get().asFile.absolutePath}",
+                            "-Dkeycloak.image=${keycloakImage.get()}",
+                        )
+                    }
+                }
+            }
+        }
+    }
 }
 
 spotless {
@@ -68,10 +100,6 @@ tasks {
 
     assemble {
         dependsOn(shadowJar)
-    }
-
-    test {
-        useJUnitPlatform()
     }
 
     wrapper {
