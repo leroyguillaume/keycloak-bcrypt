@@ -3,12 +3,10 @@ package com.github.leroyguillaume.keycloak.bcrypt;
 import at.favre.lib.crypto.bcrypt.BCrypt;
 import at.favre.lib.crypto.bcrypt.LongPasswordStrategies;
 import at.favre.lib.crypto.bcrypt.LongPasswordStrategy;
+import java.security.SecureRandom;
 import org.keycloak.credential.hash.PasswordHashProvider;
 import org.keycloak.models.PasswordPolicy;
 import org.keycloak.models.credential.PasswordCredentialModel;
-
-import java.security.SecureRandom;
-
 
 /**
  * @author <a href="mailto:pro.guillaume.leroy@gmail.com">Guillaume Leroy</a>
@@ -43,21 +41,14 @@ public class BCryptPasswordHashProvider implements PasswordHashProvider {
     @Override
     public PasswordCredentialModel encodedCredential(final String rawPassword, final int iterations) {
         final int cost = cost(iterations);
-        final String encodedPassword = encode(rawPassword, cost);
+        final String encodedPassword = hasher.hashToString(cost, rawPassword.toCharArray());
 
         // bcrypt salt is stored as part of the encoded password so no need to store salt separately
         return PasswordCredentialModel.createFromValues(providerId, new byte[0], cost, encodedPassword);
     }
 
     @Override
-    public String encode(final String rawPassword, final int iterations) {
-        return hasher.hashToString(cost(iterations), rawPassword.toCharArray());
-    }
-
-    @Override
-    public void close() {
-
-    }
+    public void close() {}
 
     @Override
     public boolean verify(final String rawPassword, final PasswordCredentialModel credential) {

@@ -22,7 +22,6 @@ import org.keycloak.credential.hash.PasswordHashProvider;
 import org.keycloak.credential.hash.PasswordHashProviderFactory;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
-import org.keycloak.provider.ProviderFactory;
 
 /**
  * @author <a href="mailto:pro.guillaume.leroy@gmail.com">Guillaume Leroy</a>
@@ -37,12 +36,10 @@ public class BCryptPasswordHashProviderFactory implements PasswordHashProviderFa
     }
 
     @Override
-    public void init(Config.Scope config) {
-    }
+    public void init(Config.Scope config) {}
 
     @Override
-    public void postInit(KeycloakSessionFactory factory) {
-    }
+    public void postInit(KeycloakSessionFactory factory) {}
 
     @Override
     public String getId() {
@@ -50,6 +47,5 @@ public class BCryptPasswordHashProviderFactory implements PasswordHashProviderFa
     }
 
     @Override
-    public void close() {
-    }
+    public void close() {}
 }
