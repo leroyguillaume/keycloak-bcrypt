@@ -32,6 +32,11 @@ tasks:
     cmds:
       - ./gradlew test {{.CLI_ARGS}}
 
+  test:integration:
+    desc: Run the provider inside a Keycloak container (needs Docker)
+    cmds:
+      - ./gradlew integrationTest {{.CLI_ARGS}}
+
   build:
     desc: Build the provider jar into build/libs
     cmds:

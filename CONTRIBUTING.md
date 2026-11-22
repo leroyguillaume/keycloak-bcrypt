@@ -36,6 +36,16 @@ A single class or test:
 task test -- --tests 'BCryptPasswordHashProviderTest.shouldVerifyA2bHash'
 ```
 
+The integration tests start Keycloak in a container with the provider jar, so they need a running Docker. They run against the image set by `keycloakImage` in [`gradle.properties`](gradle.properties), and any other release with `-PkeycloakImage`:
+
+```bash
+task test:integration
+```
+
+```bash
+task test:integration -- -PkeycloakImage=quay.io/keycloak/keycloak:26.0.8
+```
+
 A fix comes with a test that fails without it; a new behaviour comes with tests covering it.
 
 ## Pre-commit hooks

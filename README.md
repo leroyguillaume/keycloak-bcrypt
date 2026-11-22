@@ -52,6 +52,12 @@ Or make it the default of every realm without a hashing policy, with a server op
 kc.sh start --spi-password-hashing--provider-default=bcrypt
 ```
 
+Keycloak 26.0 to 26.2 silently ignore that spelling and need the older one:
+
+```bash
+kc.sh start --spi-password-hashing-provider-default=bcrypt
+```
+
 | Setting | Default | Description |
 | --- | --- | --- |
 | *Hashing Algorithm* policy | Keycloak's default | `bcrypt` to hash the realm's passwords with this provider |
