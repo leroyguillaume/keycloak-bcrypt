@@ -83,7 +83,8 @@ pre-commit run <hook-id> --all-files
 | --- | --- | --- |
 | [`quality.yaml`](.github/workflows/quality.yaml) | quality gate: hooks, unit tests, integration tests on the oldest supported and the latest Keycloak | `task lint`, `task test`, `task test:integration` |
 | [`security.yaml`](.github/workflows/security.yaml) | Trivy scan of the locked dependencies, and daily of the published image | `trivy fs .` |
-| [`build.yaml`](.github/workflows/build.yaml) | multi-arch image build and Trivy scan; pushes only when run by hand with `push`, or by a release | `task build` then `docker build .` |
+| [`build.yaml`](.github/workflows/build.yaml) | multi-arch image build and Trivy scan; pushes only when run by hand with `push`, or by a release or a refresh | `task build` then `docker build .` |
+| [`refresh-image.yaml`](.github/workflows/refresh-image.yaml) | when the Dockerfile changes on `master`, typically a Keycloak bump from Renovate: republishes the latest release's attested jar on the new base | — |
 | [`release.yaml`](.github/workflows/release.yaml) | on a `v*` tag: the image, and independently the GitHub release with the attested jar and its SBOM | — |
 | [`scorecard.yaml`](.github/workflows/scorecard.yaml) | OpenSSF Scorecard grade of the repository | — |
 | [`renovate.yaml`](.github/workflows/renovate.yaml) | daily dependency update pull requests, configured in [`renovate.json`](renovate.json) | `dryRun` input on a manual run |
@@ -97,7 +98,7 @@ Secrets, which pull requests from forks do not get:
 - `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN`: push the image to Docker Hub.
 - `RENOVATE_TOKEN`: a fine-grained token with contents, pull requests, issues and workflows write and Dependabot alerts read, so that Renovate's pull requests trigger CI.
 
-An image for another Keycloak release, without a new provider release: run `build.yaml` by hand from the release tag, with `push` and `keycloak_version`.
+A Keycloak bump needs no provider release: merging Renovate's `keycloak` pull request runs `refresh-image.yaml`, which publishes `<keycloak version>_<latest release>` and moves `latest`. It refuses a jar that carries no attestation from this repository's release workflow. An image for an older Keycloak release: run `build.yaml` by hand from the release tag, with `push` and `keycloak_version`.
 
 ## Submitting a change
 
