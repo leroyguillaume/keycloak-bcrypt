@@ -32,6 +32,7 @@ jobs:
       - name: fail on fixable high and critical vulnerabilities
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
+          version: v0.76.2
           scan-type: fs
           scan-ref: .
           exit-code: "1"
@@ -43,6 +44,7 @@ jobs:
         if: always()
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
+          version: v0.76.2
           scan-type: fs
           scan-ref: .
           format: sarif
@@ -69,6 +71,7 @@ jobs:
       - name: fail on fixable high and critical vulnerabilities
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
+          version: v0.76.2
           image-ref: docker.io/gleroy/keycloak-bcrypt:latest
           exit-code: "1"
           severity: HIGH,CRITICAL
@@ -79,6 +82,7 @@ jobs:
         if: always()
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
+          version: v0.76.2
           image-ref: docker.io/gleroy/keycloak-bcrypt:latest
           format: sarif
           output: trivy-image.sarif

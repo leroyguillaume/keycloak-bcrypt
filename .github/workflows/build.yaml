@@ -100,6 +100,7 @@ jobs:
       packages: write
       security-events: write
     strategy:
+      fail-fast: false
       matrix:
         include:
           - arch: amd64
@@ -156,6 +157,7 @@ jobs:
       - name: fail on fixable high and critical vulnerabilities
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
+          version: v0.76.2
           image-ref: keycloak-bcrypt:scan
           exit-code: "1"
           severity: HIGH,CRITICAL
@@ -166,6 +168,7 @@ jobs:
         if: always()
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
+          version: v0.76.2
           image-ref: keycloak-bcrypt:scan
           format: sarif
           output: trivy-image.sarif
