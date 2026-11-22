@@ -91,11 +91,13 @@ jobs:
           upload-release-assets: false
 
       - name: attest the jar
+        id: attest-jar
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
         with:
           subject-path: dist/*
 
       - name: attest the SBOM
+        id: attest-sbom
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
         with:
           subject-path: dist/*
@@ -105,7 +107,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ needs.version.outputs.version }}
+          PROVENANCE_BUNDLE: ${{ steps.attest-jar.outputs.bundle-path }}
+          SBOM_BUNDLE: ${{ steps.attest-sbom.outputs.bundle-path }}
         run: |
+          cp "$PROVENANCE_BUNDLE" "dist/keycloak-bcrypt-${VERSION}.jar.sigstore.json"
+          cp "$SBOM_BUNDLE" "dist/keycloak-bcrypt-${VERSION}.jar.sbom.sigstore.json"
           previous="$(git tag --list 'v*' | grep -v -- - | sort -V | grep -B1 -x "v${VERSION}" | head -n -1)"
           gh release create "v${VERSION}" dist/* "keycloak-bcrypt-${VERSION}.cdx.json" \
             --title "v${VERSION}" --generate-notes --verify-tag ${previous:+--notes-start-tag "$previous"}
