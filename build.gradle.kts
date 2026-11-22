@@ -17,6 +17,10 @@ repositories {
     mavenCentral()
 }
 
+configurations.runtimeClasspath {
+    resolutionStrategy.activateDependencyLocking()
+}
+
 configurations {
     testImplementation {
         extendsFrom(compileOnly.get())

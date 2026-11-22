@@ -1,0 +1,111 @@
+name: release
+
+on:
+  push:
+    tags:
+      - v*
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  version:
+    name: version
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: derive the version from the tag
+        id: version
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          committed="$(sed -n 's/^version = "\(.*\)"$/\1/p' build.gradle.kts)"
+          if [ "$committed" != "$version" ]; then
+            echo "build.gradle.kts says ${committed} but the tag says ${version}." >&2
+            echo "Cut releases with scripts/release.sh so the two stay in step." >&2
+            exit 1
+          fi
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+
+  image:
+    name: image
+    needs:
+      - version
+    permissions:
+      contents: read
+      packages: write
+      security-events: write
+      id-token: write
+      attestations: write
+      artifact-metadata: write
+    uses: ./.github/workflows/build.yaml
+    with:
+      push: true
+      version: ${{ needs.version.outputs.version }}
+    secrets: inherit
+
+  github-release:
+    name: GitHub release
+    if: ${{ !contains(needs.version.outputs.version, '-') }}
+    needs:
+      - version
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - name: check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: install the tools
+        uses: jdx/mise-action@924e7c586e33d7d4bae9c14e26c5d22e2beb6e78 # v5.3.0
+        with:
+          cache: false
+
+      - name: build the jar
+        run: |
+          task build
+          mkdir dist
+          cp build/libs/keycloak-bcrypt-*.jar dist/
+
+      - name: generate the SBOM
+        uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
+        with:
+          file: dist/keycloak-bcrypt-${{ needs.version.outputs.version }}.jar
+          format: cyclonedx-json
+          output-file: keycloak-bcrypt-${{ needs.version.outputs.version }}.cdx.json
+          upload-artifact: false
+          upload-release-assets: false
+
+      - name: attest the jar
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-path: dist/*
+
+      - name: attest the SBOM
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-path: dist/*
+          sbom-path: keycloak-bcrypt-${{ needs.version.outputs.version }}.cdx.json
+
+      - name: create the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          previous="$(git tag --list 'v*' | grep -v -- - | sort -V | grep -B1 -x "v${VERSION}" | head -n -1)"
+          gh release create "v${VERSION}" dist/* "keycloak-bcrypt-${VERSION}.cdx.json" \
+            --title "v${VERSION}" --generate-notes --verify-tag ${previous:+--notes-start-tag "$previous"}

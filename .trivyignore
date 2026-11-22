@@ -1,0 +1,3 @@
+# CVE-2026-102554 is in Guava 33.6.0, shipped by the Keycloak 26.8.2 base image, not in the provider jar.
+# Lift once a Keycloak release ships Guava >= 33.7.2; the entry expires on its own so it cannot be forgotten.
+CVE-2026-102554 exp:2027-02-28

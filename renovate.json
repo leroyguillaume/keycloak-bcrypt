@@ -1,0 +1,62 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "timezone": "Europe/Paris",
+  "dependencyDashboard": {
+    "enabled": true,
+    "title": "Dependency dashboard"
+  },
+  "prConcurrentLimit": 5,
+  "minimumReleaseAge": "3 days",
+  "lockFileMaintenance": {
+    "enabled": true
+  },
+  "pre-commit": {
+    "enabled": true
+  },
+  "labels": [
+    "dependencies"
+  ],
+  "packageRules": [
+    {
+      "description": "Minor and patch bumps land as one PR; each major gets its own",
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "groupName": "minor and patch"
+    },
+    {
+      "description": "The image and the integration tests run on the same Keycloak release, so they move together",
+      "matchDepNames": [
+        "quay.io/keycloak/keycloak"
+      ],
+      "groupName": "keycloak"
+    },
+    {
+      "description": "The provider compiles against the oldest Keycloak it supports: raising that floor drops support for older servers, a decision rather than a routine bump",
+      "matchFileNames": [
+        "gradle/libs.versions.toml"
+      ],
+      "matchPackageNames": [
+        "org.keycloak:*"
+      ],
+      "enabled": false
+    }
+  ],
+  "customManagers": [
+    {
+      "description": "Keycloak image the integration tests run on, e.g. `keycloakImage=quay.io/keycloak/keycloak:26.8.2` in gradle.properties",
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^gradle\\.properties$/"
+      ],
+      "matchStrings": [
+        "keycloakImage=(?<depName>[^:\\s]+):(?<currentValue>\\S+)"
+      ],
+      "datasourceTemplate": "docker"
+    }
+  ]
+}
