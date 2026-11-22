@@ -40,7 +40,7 @@ Then restart Keycloak. A server started with `--optimized` needs a build first:
 /opt/keycloak/bin/kc.sh build
 ```
 
-Or use the image: the [official Keycloak image](https://quay.io/repository/keycloak/keycloak) with the provider added, for `amd64` and `arm64`, on Docker Hub (`gleroy/keycloak-bcrypt`) and GHCR (`ghcr.io/leroyguillaume/keycloak-bcrypt`). It is tagged `<keycloak version>_<provider version>`, and `latest` follows the latest release:
+Or use the image: the [official Keycloak image](https://quay.io/repository/keycloak/keycloak) with the provider added, for `amd64` and `arm64`, on Docker Hub (`gleroy/keycloak-bcrypt`) and GHCR (`ghcr.io/leroyguillaume/keycloak-bcrypt`). It is tagged `<keycloak version>_<provider version>`. Each new Keycloak release gets an image of the latest provider release, and `latest` is the newest image:
 
 ```bash
 docker run -p 8080:8080 -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=change-me gleroy/keycloak-bcrypt:26.5.2_1.7.0 start-dev

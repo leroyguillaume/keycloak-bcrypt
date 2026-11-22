@@ -42,12 +42,17 @@ on:
         description: Release version, from the tag
         type: string
         required: true
+      release_jar:
+        description: Use the attested jar of the `version` release instead of building one
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 concurrency:
-  group: build-${{ github.ref }}
+  # A Dockerfile push to master starts both a check run and the refresh's publishing run; one group would cancel one.
+  group: build-${{ github.ref }}-${{ inputs.push && 'publish' || 'check' }}
   cancel-in-progress: true
 
 env:
@@ -58,6 +63,9 @@ jobs:
   jar:
     name: jar
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      attestations: read
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
@@ -80,7 +88,18 @@ jobs:
           echo "version=${version}" >> "$GITHUB_OUTPUT"
 
       - name: build the jar
+        if: ${{ !inputs.release_jar }}
         run: task build
+
+      - name: fetch and verify the released jar
+        if: inputs.release_jar
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          mkdir -p build/libs
+          gh release download "v${VERSION}" --repo "$GITHUB_REPOSITORY" --pattern "keycloak-bcrypt-${VERSION}.jar" --dir build/libs
+          gh attestation verify "build/libs/keycloak-bcrypt-${VERSION}.jar" --repo "$GITHUB_REPOSITORY"
 
       - name: keep the jar for the image jobs
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
