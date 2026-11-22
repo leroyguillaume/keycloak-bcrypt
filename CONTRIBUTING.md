@@ -81,7 +81,7 @@ pre-commit run <hook-id> --all-files
 
 | Workflow | Purpose | Reproduce locally |
 | --- | --- | --- |
-| [`quality.yaml`](.github/workflows/quality.yaml) | quality gate: hooks, unit tests, integration tests on the oldest supported and the latest Keycloak | `task lint`, `task test`, `task test:integration` |
+| [`quality.yaml`](.github/workflows/quality.yaml) | quality gate: Gradle wrapper checksum, hooks, unit tests, integration tests on the oldest supported and the latest Keycloak | `task lint`, `task test`, `task test:integration` |
 | [`security.yaml`](.github/workflows/security.yaml) | Trivy scan of the locked dependencies, and daily of the published image | `trivy fs .` |
 | [`build.yaml`](.github/workflows/build.yaml) | multi-arch image build and Trivy scan; pushes only when run by hand with `push`, or by a release or a refresh | `task build` then `docker build .` |
 | [`refresh-image.yaml`](.github/workflows/refresh-image.yaml) | when the Dockerfile changes on `master`, typically a Keycloak bump from Renovate: republishes the latest release's attested jar on the new base | — |
