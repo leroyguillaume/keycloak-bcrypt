@@ -1,0 +1,51 @@
+default_install_hook_types:
+  - pre-commit
+  - commit-msg
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c  # frozen: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+        args:
+          - --allow-multiple-documents
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: detect-private-key
+
+  - repo: https://github.com/adrienverge/yamllint
+    rev: cba56bcde1fdd01c1deb3f945e69764c291a6530  # frozen: v1.38.0
+    hooks:
+      - id: yamllint
+        args:
+          - --strict
+
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: a76b92851fc9eede9f9bc4073eb55202f34eb0df  # frozen: 0.39.0
+    hooks:
+      - id: check-taskfile
+
+  - repo: local
+    hooks:
+      - id: no-co-authors
+        name: no co-authors in commit message
+        entry: '^\s*co-authored-by:|\bgenerated with\b'
+        language: pygrep
+        args:
+          - --ignore-case
+        stages:
+          - commit-msg
+      - id: mise-fmt
+        name: mise fmt
+        entry: mise fmt
+        language: system
+        files: ^mise\.toml$
+        pass_filenames: false
+      - id: spotless
+        name: spotless (palantir-java-format, ktlint)
+        entry: ./gradlew spotlessApply --quiet
+        language: system
+        files: (\.java|\.gradle\.kts)$
+        pass_filenames: false

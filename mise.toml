@@ -1,0 +1,10 @@
+min_version = "2026.11.10"
+
+[tools]
+java = "temurin-21.0.13.1+2.0.LTS"
+pre-commit = "4.7.0"
+task = "3.54.0"
+
+[settings]
+lockfile = true
+disable_backends = ["asdf", "vfox"]

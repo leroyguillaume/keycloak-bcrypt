@@ -1,0 +1,12 @@
+services:
+  keycloak:
+    build: .
+    image: keycloak-bcrypt:dev
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+    ports:
+      - 8080:8080
+    command:
+      - start-dev
+      - --spi-password-hashing--provider-default=bcrypt
