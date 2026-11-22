@@ -85,7 +85,7 @@ pre-commit run <hook-id> --all-files
 | [`security.yaml`](.github/workflows/security.yaml) | Trivy scan of the locked dependencies, and daily of the published image | `trivy fs .` |
 | [`build.yaml`](.github/workflows/build.yaml) | multi-arch image build and Trivy scan; pushes only when run by hand with `push`, or by a release or a refresh | `task build` then `docker build .` |
 | [`refresh-image.yaml`](.github/workflows/refresh-image.yaml) | when the Dockerfile changes on `master`, typically a Keycloak bump from Renovate: republishes the latest release's attested jar on the new base | — |
-| [`release.yaml`](.github/workflows/release.yaml) | on a `v*` tag: the image, and independently the GitHub release with the attested jar and its SBOM | — |
+| [`release.yaml`](.github/workflows/release.yaml) | on a `v*` tag: the image, and independently the GitHub release with the attested jar, its SBOM and the Sigstore bundles of both attestations | — |
 | [`scorecard.yaml`](.github/workflows/scorecard.yaml) | OpenSSF Scorecard grade of the repository | — |
 | [`renovate.yaml`](.github/workflows/renovate.yaml) | daily dependency update pull requests, configured in [`renovate.json`](renovate.json) | `dryRun` input on a manual run |
 
