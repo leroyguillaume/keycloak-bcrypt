@@ -38,7 +38,7 @@ tasks:
       - ./gradlew integrationTest {{.CLI_ARGS}}
 
   lock:
-    desc: Rewrite gradle.lockfile after a dependency change
+    desc: Rewrite gradle.lockfile after a runtime dependency change
     cmds:
       - ./gradlew dependencies --write-locks
 

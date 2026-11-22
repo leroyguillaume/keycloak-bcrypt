@@ -17,8 +17,8 @@ repositories {
     mavenCentral()
 }
 
-dependencyLocking {
-    lockAllConfigurations()
+configurations.runtimeClasspath {
+    resolutionStrategy.activateDependencyLocking()
 }
 
 configurations {

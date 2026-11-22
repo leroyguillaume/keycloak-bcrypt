@@ -46,7 +46,7 @@ task test:integration
 task test:integration -- -PkeycloakImage=quay.io/keycloak/keycloak:26.0.8
 ```
 
-Dependency versions live in [`gradle/libs.versions.toml`](gradle/libs.versions.toml), and every resolved version is locked in [`gradle.lockfile`](gradle.lockfile). After changing a dependency, rewrite the lock:
+Dependency versions live in [`gradle/libs.versions.toml`](gradle/libs.versions.toml), and the ones the jar ships are locked in [`gradle.lockfile`](gradle.lockfile), which the `security` workflow scans. After changing a runtime dependency, rewrite the lock:
 
 ```bash
 task lock
