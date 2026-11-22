@@ -25,13 +25,13 @@ It does not migrate users by itself: importing them goes through the Keycloak ad
 Download the provider into Keycloak's `providers` directory:
 
 ```bash
-curl -L -o /opt/keycloak/providers/keycloak-bcrypt-1.7.0.jar https://github.com/leroyguillaume/keycloak-bcrypt/releases/download/v1.7.0/keycloak-bcrypt-1.7.0.jar
+curl -L -o /opt/keycloak/providers/keycloak-bcrypt-1.8.0.jar https://github.com/leroyguillaume/keycloak-bcrypt/releases/download/v1.8.0/keycloak-bcrypt-1.8.0.jar
 ```
 
 Check that this repository's release workflow built it:
 
 ```bash
-gh attestation verify /opt/keycloak/providers/keycloak-bcrypt-1.7.0.jar --repo leroyguillaume/keycloak-bcrypt
+gh attestation verify /opt/keycloak/providers/keycloak-bcrypt-1.8.0.jar --repo leroyguillaume/keycloak-bcrypt
 ```
 
 Then restart Keycloak. A server started with `--optimized` needs a build first:
@@ -43,11 +43,11 @@ Then restart Keycloak. A server started with `--optimized` needs a build first:
 Or use the image: the [official Keycloak image](https://quay.io/repository/keycloak/keycloak) with the provider added, for `amd64` and `arm64`, on Docker Hub (`gleroy/keycloak-bcrypt`) and GHCR (`ghcr.io/leroyguillaume/keycloak-bcrypt`). It is tagged `<keycloak version>_<provider version>`. Each new Keycloak release gets an image of the latest provider release, and `latest` is the newest image:
 
 ```bash
-docker run -p 8080:8080 -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=change-me gleroy/keycloak-bcrypt:26.5.2_1.7.0 start-dev
+docker run -p 8080:8080 -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=change-me gleroy/keycloak-bcrypt:26.8.2_1.8.0 start-dev
 ```
 
 ```bash
-gh attestation verify oci://docker.io/gleroy/keycloak-bcrypt:26.5.2_1.7.0 --repo leroyguillaume/keycloak-bcrypt
+gh attestation verify oci://docker.io/gleroy/keycloak-bcrypt:26.8.2_1.8.0 --repo leroyguillaume/keycloak-bcrypt
 ```
 
 The image enables Keycloak's health endpoints on the management port, 9000, which its `HEALTHCHECK` probes.
