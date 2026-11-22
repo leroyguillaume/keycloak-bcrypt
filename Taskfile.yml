@@ -1,0 +1,43 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: '3'
+
+set:
+  - errexit
+  - nounset
+  - pipefail
+
+tasks:
+  default:
+    cmds:
+      - task --list
+    silent: true
+
+  setup:
+    desc: Install the git hooks
+    cmds:
+      - pre-commit install
+
+  lint:
+    desc: Run every pre-commit hook on the whole repository
+    cmds:
+      - pre-commit run --all-files
+
+  fmt:
+    desc: Format the Java sources and the build scripts
+    cmds:
+      - ./gradlew spotlessApply
+
+  test:
+    desc: Run the unit tests
+    cmds:
+      - ./gradlew test {{.CLI_ARGS}}
+
+  build:
+    desc: Build the provider jar into build/libs
+    cmds:
+      - ./gradlew assemble
+
+  run:
+    desc: Build the image and start Keycloak with the provider on http://localhost:8080
+    cmds:
+      - docker compose up --build

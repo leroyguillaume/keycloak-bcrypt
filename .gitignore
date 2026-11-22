@@ -8,8 +8,10 @@ build
 .vscode
 *.iml
 
-# Maven
-target
+# mise
+mise.local.toml
+mise.local.lock
+.env
 
-# Docker
-docker/*.jar
+# Task
+.task/
