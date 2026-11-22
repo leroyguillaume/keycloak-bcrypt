@@ -88,6 +88,8 @@ pre-commit run <hook-id> --all-files
 | [`scorecard.yaml`](.github/workflows/scorecard.yaml) | OpenSSF Scorecard grade of the repository | — |
 | [`renovate.yaml`](.github/workflows/renovate.yaml) | daily dependency update pull requests, configured in [`renovate.json`](renovate.json) | `dryRun` input on a manual run |
 
+The `quality` jobs cache Gradle's dependencies, written from `master` only, because Maven Central rate-limits the repeated downloads; jobs that publish never use the cache.
+
 `quality` and `security` are the required checks; `build` only runs when a file that goes into the image changes. `security` also fails on a schedule, with no change of yours, when a new fixable CVE reaches a dependency or the published image.
 
 Secrets, which pull requests from forks do not get:
