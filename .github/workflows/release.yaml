@@ -15,7 +15,7 @@ concurrency:
 jobs:
   version:
     name: version
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
@@ -58,7 +58,7 @@ jobs:
     if: ${{ !contains(needs.version.outputs.version, '-') }}
     needs:
       - version
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: write
       id-token: write

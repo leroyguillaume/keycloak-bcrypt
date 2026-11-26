@@ -19,7 +19,7 @@ concurrency:
 jobs:
   dependencies:
     name: dependencies
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
       security-events: write
@@ -63,7 +63,7 @@ jobs:
   image:
     name: published image
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
       security-events: write

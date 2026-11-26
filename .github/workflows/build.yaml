@@ -62,7 +62,7 @@ env:
 jobs:
   jar:
     name: jar
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
       attestations: read
@@ -253,7 +253,7 @@ jobs:
     needs:
       - jar
       - image
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
       packages: write
